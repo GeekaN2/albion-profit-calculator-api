@@ -1,0 +1,24 @@
+{
+  "name": "albion-profit-calculator-api",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "Mikhail Popov",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "dotenv": "^8.2.0",
+    "koa": "^2.12.0",
+    "koa-body": "^4.1.3",
+    "koa-mongo": "^1.9.1",
+    "koa-router": "^8.0.8"
+  },
+  "devDependencies": {
+    "eslint": "^7.2.0",
+    "eslint-plugin-node": "^11.1.0",
+    "nodemon": "^2.0.4"
+  },
+  "scripts": {
+    "dev": "nodemon --exec \"yarn lint && node app/server.js\"",
+    "lint": "eslint app/ --ext .js --fix"
+  }
+}
