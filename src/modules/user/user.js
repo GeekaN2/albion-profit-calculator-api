@@ -1,16 +1,18 @@
 const Router = require('koa-router');
-
 const router = new Router();
+const mongo = require('koa-mongo');
 
 router.post('/', async ctx => {
-  const { nickname } = ctx.request.body; // there will be jwt.nickname or smth like that
-  ctx.body = {
-    nickname: nickname
-  };
-});
+  const { id : userId } = ctx.state.user;
+  const user = await ctx.mongo.db('albion').collection('users').findOne({ _id: mongo.ObjectId(userId) });
+  
+  if (!user) {
+    return;
+  }
 
-router.get('/:id', async ctx => {
-  ctx.body = ctx.params.id;
+  ctx.body = {
+    nickname: user.nickname
+  }
 });
 
 module.exports = router;

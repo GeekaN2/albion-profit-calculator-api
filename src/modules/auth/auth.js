@@ -49,9 +49,9 @@ router.post('/refresh', async ctx => {
 })
 
 router.post('/logout', jwtMiddleware({ secret: config.secret }), async ctx => {
-	const { id } = ctx.state.user;
+	const { id: userId } = ctx.state.user;
 
-	const removeAllRefreshTokens = await ctx.mongo.db('albion').collection('refresh_tokens').remove({ userId: id });
+	const removeAllRefreshTokens = await ctx.mongo.db('albion').collection('refresh_tokens').remove({ userId: userId });
 
 	ctx.body = {
 		success: true
