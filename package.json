@@ -1,9 +1,10 @@
-{ 
+{
   "name": "albion-profit-calculator-api",
   "version": "1.0.0",
   "author": "Mikhail Popov",
   "license": "MIT",
   "dependencies": {
+    "@koa/cors": "^3.1.0",
     "bcrypt": "^5.0.0",
     "dotenv": "^8.2.0",
     "jsonwebtoken": "^8.5.1",

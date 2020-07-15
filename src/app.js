@@ -6,6 +6,7 @@ const jwtMiddleware = require('koa-jwt');
 const koaBody = require('koa-body');
 const config = require('./config');
 const mongo = require('koa-mongo');
+const cors = require('@koa/cors');
 
 const userModule = require('./modules/user/user');
 const registerModule = require('./modules/register/register');
@@ -31,6 +32,7 @@ function createApp() {
   
 
   app.use(koaBody());
+  app.use(cors());
   app.use(mongo({
     uri: config.connection,
     max: 100,
