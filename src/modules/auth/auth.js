@@ -36,7 +36,7 @@ router.post('/refresh', async ctx => {
 		return;
 	}
 
-	const removeOldToken = await ctx.mongo.db('albion').collection('refresh_tokens').removeOne({ token: refreshToken });
+	const removeOldToken = await ctx.mongo.db('albion').collection('refresh_tokens').deleteOne({ token: refreshToken });
 
 	const newRefreshToken = uuid();
 	const insertNewToken = await ctx.mongo.db('albion').collection('refresh_tokens').insertOne({ userId: dbToken.userId, token: newRefreshToken });
@@ -50,7 +50,7 @@ router.post('/refresh', async ctx => {
 router.post('/logout', jwtMiddleware({ secret: config.secret }), async ctx => {
 	const { id: userId } = ctx.state.user;
 
-	const removeAllRefreshTokens = await ctx.mongo.db('albion').collection('refresh_tokens').remove({ userId: userId });
+	const removeAllRefreshTokens = await ctx.mongo.db('albion').collection('refresh_tokens').deleteOne({ userId: userId });
 
 	ctx.body = {
 		success: true
