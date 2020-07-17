@@ -9,7 +9,6 @@ const router = new Router();
 
 router.post('/login', async ctx => {
 	const { nickname, password } = ctx.request.body;
-	// ctx.body = `${nickname} : ${password}`;
 
 	const user = await ctx.mongo.db('albion').collection('users').findOne({ nickname: nickname });
 

@@ -1,6 +1,7 @@
 const Router = require('koa-router');
 const router = new Router();
 const bcrypt = require('bcrypt');
+const config = require('../../config');
 const { generateRandomRegisterToken, validateRegister } = require('../../utlis');
 
 /**
@@ -39,7 +40,15 @@ router.all('/', async (ctx) => {
     }
 });
 
-router.get('/add-random-token', async (ctx) => {
+router.post('/add-random-token', async (ctx) => {
+  const { secret } = ctx.request.body;
+  
+  if (secret != config.register_secret) {
+    ctx.body = 'Invalid secret string';
+
+    return;
+  }
+
   const tokens = ctx.mongo.db('albion').collection('tokens');
   const hexToken = generateRandomRegisterToken();
   const findToken = await tokens.findOne({ token: hexToken});
@@ -53,10 +62,10 @@ router.get('/add-random-token', async (ctx) => {
   const result = await tokens.insertOne({ token: hexToken});
 
   if (JSON.parse(result).ok) {
-    ctx.body = 'Token inserted';
+    ctx.body = hexToken;
   } else {
     ctx.body = 'Token inserting failed';
   }  
-})
+});
 
 module.exports = router;
