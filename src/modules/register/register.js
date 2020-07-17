@@ -18,7 +18,6 @@ router.all('/', async (ctx) => {
     }
 
     const token = await ctx.mongo.db('albion').collection('tokens').findOne({ token: registerToken });
-    console.log(token);
 
     if (token === null) {
       ctx.body = 'Bad register token';
@@ -30,8 +29,8 @@ router.all('/', async (ctx) => {
 
     if (user === null) {
       bcrypt.hash(password, 10).then(function(hash) {
-        const result = ctx.mongo.db('albion').collection('users').insert({ nickname: nickname, password: hash});
-        const deletedToken = ctx.mongo.db('albion').collection('tokens').remove({ token: registerToken });
+        const result = ctx.mongo.db('albion').collection('users').insertOne({ nickname: nickname, password: hash});
+        const deletedToken = ctx.mongo.db('albion').collection('tokens').deleteOne({ token: registerToken });
       });
 
       ctx.body = 'Registered successfully';
