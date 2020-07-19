@@ -18,6 +18,7 @@
   },
   "scripts": {
     "dev": "nodemon --exec \"yarn lint && node src/app.js\"",
+    "prod": "node src/app.js",
     "lint": "eslint src/ --ext .js --fix"
   },
   "devDependencies": {
