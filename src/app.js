@@ -17,18 +17,18 @@ function createApp() {
   const app = new Koa();
   const router = new Router();
 
-  router.get('/', ctx => {
+  router.get('/api', ctx => {
     ctx.body = 'ok';
   });
 
-  router.use('/register', registerModule.routes());
-  router.use('/auth', authModule.routes());
+  router.use('/api/register', registerModule.routes());
+  router.use('/api/auth', authModule.routes());
   router.use(
     jwtMiddleware({
       secret: config.secret,
     })
   );
-  router.use('/user', userModule.routes());
+  router.use('/api/user', userModule.routes());
   
 
   app.use(koaBody());
