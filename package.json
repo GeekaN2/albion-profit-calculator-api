@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "@koa/cors": "^3.1.0",
+    "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
     "dotenv": "^8.2.0",
     "jsonwebtoken": "^8.5.1",
@@ -13,17 +14,22 @@
     "koa-jwt": "^4.0.0",
     "koa-mongo": "^1.9.1",
     "koa-router": "^9.1.0",
+    "mongodb": "^3.6.0",
     "rc": "^1.2.8",
     "uuid": "^8.2.0"
   },
   "scripts": {
     "dev": "nodemon --exec \"yarn lint && node src/app.js\"",
     "prod": "node src/app.js",
-    "lint": "eslint src/ --ext .js --fix"
+    "lint": "eslint src/ --ext .js --fix",
+    "run-worker-dev": "nodemon src/modules/worker/index.js"
   },
   "devDependencies": {
     "eslint": "^7.4.0",
     "eslint-plugin-node": "^11.1.0",
     "nodemon": "^2.0.4"
+  },
+  "engines": {
+    "node": ">= 12.11.0"
   }
 }
