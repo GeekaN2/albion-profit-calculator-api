@@ -11,7 +11,7 @@ const cors = require('@koa/cors');
 const userModule = require('./modules/user/user');
 const registerModule = require('./modules/register/register');
 const authModule = require('./modules/auth/auth');
-// const authModule = require('./modules/auth/auth');
+const averageDataModule = require('./modules/average_data/average_data');
 
 function createApp() {
   const app = new Koa();
@@ -23,6 +23,7 @@ function createApp() {
 
   router.use('/api/register', registerModule.routes());
   router.use('/api/auth', authModule.routes());
+  router.use('/api/data', averageDataModule.routes());
   router.use(
     jwtMiddleware({
       secret: config.secret,
@@ -30,7 +31,6 @@ function createApp() {
   );
   router.use('/api/user', userModule.routes());
   
-
   app.use(koaBody());
   app.use(cors());
   app.use(mongo({
@@ -41,7 +41,6 @@ function createApp() {
   app.use(router.allowedMethods());
   app.use(router.routes());
   
-
   return app;
 }
 

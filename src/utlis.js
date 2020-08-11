@@ -23,5 +23,48 @@ function generateRandomRegisterToken() {
   return hexString;
 }
 
-module.exports.generateRandomRegisterToken = generateRandomRegisterToken;
-module.exports.validateRegister = validateRegister;
+/**
+ * Creates an array to request for items of all tiers and subtiers
+ * 
+ * @param {string} itemName - item name: T4_2H_NATURESTAFF_KEEPER etc.
+ */
+function createArrayOfAllNames(itemName) {
+  let allNames = [];
+
+  for (let tier = 4; tier <= 8; tier++) {
+    for (let subtier = 0; subtier <= 3; subtier++) {
+      allNames.push(`T${tier}` + itemName.slice(2) + (subtier != 0 ? `@${subtier}` : ''));
+    }
+  }
+
+  return allNames;
+}
+
+/**
+ * Checks for location availability
+ * 
+ * @param {string} location - location
+ * @returns {boolean} 
+ */
+function isAvailableLocation(location) {
+  const allLocation = ['Black Market', 'Bridgewatch', 'Caerleon', 'Fort Sterling', 'Lyumhurst', 'Martlock','Thetford']
+
+  return allLocation.includes(location);
+}
+
+/**
+ * Sleep function
+ * 
+ * @param {number} ms - sleep time in milliseconds
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+module.exports = {
+  generateRandomRegisterToken,
+  validateRegister,
+  createArrayOfAllNames,
+  isAvailableLocation,
+  sleep
+}
