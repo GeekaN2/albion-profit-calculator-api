@@ -1,4 +1,5 @@
 const rc = require('rc');
+require('dotenv').config();
 
 module.exports = rc('JWT', {
   port: process.env.PORT || 4000,
