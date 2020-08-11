@@ -17,7 +17,7 @@ const cities = [
 
 const allCities = cities.join(',');
 const baseUrl = 'https://www.albion-online-data.com/api/v2/stats/charts';
-const monthAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // fix on prod
+const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 const formatDate = `${monthAgo.getMonth() + 1}-${monthAgo.getDate()}-${monthAgo.getFullYear()}`;
 const qualities = '1,2,3';
 
