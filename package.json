@@ -22,7 +22,8 @@
     "dev": "nodemon --exec \"yarn lint && node src/app.js\"",
     "prod": "node src/app.js",
     "lint": "eslint src/ --ext .js --fix",
-    "run-worker-dev": "nodemon src/modules/worker/index.js"
+    "run-worker-dev": "nodemon src/modules/worker/index.js",
+    "run-worker-prod": "node src/modules/worker/index.js"
   },
   "devDependencies": {
     "eslint": "^7.4.0",

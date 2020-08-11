@@ -24,6 +24,9 @@ const qualities = '1,2,3';
 class Worker {
   constructor() {}
 
+  /**
+   * Connect to MongoDB
+   */
   async connect() {
     try {
       let connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -36,38 +39,30 @@ class Worker {
     }
   }
 
+  /**
+   * Run worker
+   */
   async start() {
     console.log('Worker started', new Date());
     
     await this.connect();
   }
 
+  /**
+   * Stop worker
+   */
   async stop() {
     console.log('Worker stopped', new Date());
 
     await this.connection.close();
   }
 
-  async setItemData(collectedData) {
-    const collection = this.db.collection('average_data');
-    const options = { upsert: true };
-
-    const dataToSet = [];
-
-    for (let city in collectedData) {
-      dataToSet.push({
-        itemName: collectedData[city].itemName,
-        location: city,
-        averagePrice: collectedData[city].averagePrice || 0,
-        averageItems: collectedData[city].averageItems || 0
-      });
-    }
-
-    for (let data of dataToSet) {
-      const response = await collection.updateOne({ itemName: data.itemName, location: data.location}, { $set: data }, options);
-    }
-  }
-
+  /**
+   * Fetch average data from albion-online-data api
+   * 
+   * @param {string} itemName - item name to fetch data
+   * @return {Array} - collected data for current item in each city
+   */
   async collectDataForOneItem(itemName) {
     const requestUrl = `${baseUrl}/${itemName}?date=${formatDate}&locations=${allCities}&qualities=${qualities}&time-scale=24`;
     
@@ -111,9 +106,36 @@ class Worker {
 
     return collectedData;
   }
+
+  /**
+   * Update or set collected average data to MongoDB
+   * 
+   * @param {Array} collectedData - item data in each city
+   */
+  async setItemData(collectedData) {
+    const collection = this.db.collection('average_data');
+    const options = { upsert: true };
+
+    const dataToSet = [];
+
+    for (let city in collectedData) {
+      dataToSet.push({
+        itemName: collectedData[city].itemName,
+        location: city,
+        averagePrice: collectedData[city].averagePrice || 0,
+        averageItems: collectedData[city].averageItems || 0
+      });
+    }
+
+    for (let data of dataToSet) {
+      const response = await collection.updateOne({ itemName: data.itemName, location: data.location}, { $set: data }, options);
+    }
+  }
 }
 
-
+/**
+ * Run worker
+ */
 async function runWorker() {
   const worker = new Worker();
   
@@ -127,7 +149,7 @@ async function runWorker() {
   
       worker.setItemData(collectedData);
 
-      // we can only send 1 request in 1 second, so we need to sleep
+      // We can only send 1 request in 1 second so we need to sleep
       await sleep(1000);
     }
 
