@@ -20,6 +20,7 @@ const baseUrl = 'https://www.albion-online-data.com/api/v2/stats/charts';
 const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 const formatDate = `${monthAgo.getMonth() + 1}-${monthAgo.getDate()}-${monthAgo.getFullYear()}`;
 const qualities = '1,2,3';
+const zeroDate = (new Date(0)).toISOString().slice(0,-5);
 
 class Worker {
   constructor() {}
@@ -102,6 +103,8 @@ class Worker {
     for (let city in collectedData) {
       collectedData[city].averagePrice = collectedData[city].sumCost / collectedData[city].amountOfItems;
       collectedData[city].averageItems = collectedData[city].amountOfItems / collectedData[city].days.size;
+      collectedData[city].firstCheckDate = collectedData[city].days.values().next().value;
+      collectedData[city].lastCheckDate = Array.from(collectedData[city].days).pop();
     }
 
     return collectedData;
@@ -123,7 +126,9 @@ class Worker {
         itemName: collectedData[city].itemName,
         location: city,
         averagePrice: collectedData[city].averagePrice || 0,
-        averageItems: collectedData[city].averageItems || 0
+        averageItems: collectedData[city].averageItems || 0,
+        firstCheckDate: collectedData[city].firstCheckDate || zeroDate,
+        lastCheckDate: collectedData[city].lastCheckDate || zeroDate
       });
     }
 
