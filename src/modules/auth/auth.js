@@ -18,7 +18,7 @@ router.post('/login', async ctx => {
     return;
   }
 
-  if (new Date(user.dtCreated) < new Date(new Date() - config.testPeriod)) {
+  if (user.role == 'tester' && new Date(user.dtCreated) < new Date(new Date() - config.testPeriod)) {
     ctx.body = 'The test account has expired';
 
     await ctx.mongo.db('albion').collection('users').deleteOne({ _id: user._id });
