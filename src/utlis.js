@@ -1,3 +1,7 @@
+const jwt = require('jsonwebtoken');
+const config = require('./config');
+
+
 /**
  * @param {(string | undefined)[]} data - array of string to validate
  */
@@ -8,19 +12,18 @@ function validateRegister(...data) {
 }
 
 /**
- * Generate base16 random string
+ * Generate register token
+ * 
+ * @param {string} role - user role e.g. tester, user, admin
  */
-function generateRandomRegisterToken() {
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
-  let keyString = '';
-  
-  for (let i = 0; i < 20; i++) {
-      const randomChar = alphabet[~~(Math.random() * alphabet.length)];
-      keyString = keyString + randomChar;
+function generateRegisterToken(role) {
+  const payload = {
+    role
   }
 
-  const hexString = Buffer.from(keyString, 'utf8').toString('hex');
-  return hexString;
+  const registerToken = jwt.sign(payload, config.registerJwtSecret);
+
+  return registerToken;
 }
 
 /**
@@ -62,7 +65,7 @@ function sleep(ms) {
 }
 
 module.exports = {
-  generateRandomRegisterToken,
+  generateRegisterToken,
   validateRegister,
   createArrayOfAllNames,
   isAvailableLocation,
