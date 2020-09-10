@@ -35,14 +35,14 @@ router.all('/', async (ctx) => {
   });
 
   if (user === null) {
-    bcrypt.hash(password, 10).then(function (hash) {
-      const result = ctx.mongo.db('albion').collection('users').insertOne({
+    await bcrypt.hash(password, 10).then(async function (hash) {
+      const result = await ctx.mongo.db('albion').collection('users').insertOne({
         nickname: nickname,
         password: hash,
         role: decodedToken.role,
         dtCreated: new Date()
       });
-      const deletedToken = ctx.mongo.db('albion').collection('tokens').deleteOne({ token: registerToken });
+      const deletedToken = await ctx.mongo.db('albion').collection('tokens').deleteOne({ token: registerToken });
     });
 
     ctx.body = 'Registered successfully';
