@@ -31,7 +31,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
 
   if (!gotMessages) {
     gotMessages = true;
-    
+
     console.log('Got some messages');
   }
 
@@ -41,7 +41,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
     }
     
     if (item.AuctionType == 'offer') {
-      collection.updateOne({
+      await collection.updateOne({
         itemId: item.ItemTypeId,
         quality: item.QualityLevel,
         location: cityCode[item.LocationId]
@@ -56,7 +56,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
       },
       { upsert: true });
     } else if (item.AuctionType == 'request') {
-      collection.updateOne({
+      await collection.updateOne({
         itemId: item.ItemTypeId,
         quality: item.QualityLevel,
         location: cityCode[item.LocationId]
