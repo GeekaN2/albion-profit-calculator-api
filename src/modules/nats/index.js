@@ -62,6 +62,6 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
       { upsert: true });
     }
 
-    console.log('Updated', item.ItemTypeId, 'in', cityCode[item.LocationId], 'quality', item.QualityLevel);
+    // console.log('Updated', item.ItemTypeId, 'in', cityCode[item.LocationId], 'quality', item.QualityLevel);
   }
 })
