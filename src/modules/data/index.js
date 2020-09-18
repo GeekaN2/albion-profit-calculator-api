@@ -6,7 +6,7 @@ const { isAvailableLocation } = require('../../utlis');
  * Returns data for requested items
  */
 router.get('/', async (ctx) => {
-  let { items = '', locations = '', qualities = '1,2,3,4,5'} = ctx.request.query;
+  let { items = '', locations = '', qualities = '1'} = ctx.request.query;
 
   items = items.split(',').filter(item => item.trim().length > 0) || [];
   locations = locations.split(',').filter(location => isAvailableLocation(location)) || [];
@@ -58,7 +58,7 @@ router.get('/', async (ctx) => {
       }
     }
   }
-  
+
   ctx.body = response;
 });
 

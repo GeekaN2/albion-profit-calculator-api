@@ -50,7 +50,7 @@ function createArrayOfAllNames(itemName) {
  * @returns {boolean} 
  */
 function isAvailableLocation(location) {
-  const allLocation = ['Black Market', 'Bridgewatch', 'Caerleon', 'Fort Sterling', 'Lyumhurst', 'Martlock','Thetford']
+  const allLocation = ['Black Market', 'Bridgewatch', 'Caerleon', 'Fort Sterling', 'Lymhurst', 'Martlock','Thetford']
 
   return allLocation.includes(location);
 }
