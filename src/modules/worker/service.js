@@ -147,7 +147,7 @@ async function runWorker() {
   await worker.start();
 
   for (let baseItemName of allItems) {
-    const itemsWithTierAndSubtier = createArrayOfAllNames(baseItemName);
+    const itemsWithTierAndSubtier = createArrayOfAllNames(`T4_${baseItemName}`);
 
     for (let item of itemsWithTierAndSubtier) {
       const collectedData = await worker.collectDataForOneItem(item);

@@ -8,10 +8,11 @@ const config = require('./config');
 const mongo = require('koa-mongo');
 const cors = require('@koa/cors');
 
-const userModule = require('./modules/user/user');
-const registerModule = require('./modules/register/register');
-const authModule = require('./modules/auth/auth');
-const averageDataModule = require('./modules/average_data/average_data');
+const userModule = require('./modules/user');
+const registerModule = require('./modules/register');
+const authModule = require('./modules/auth');
+const averageDataModule = require('./modules/average_data');
+const dataModule = require('./modules/data');
 
 function createApp() {
   const app = new Koa();
@@ -23,7 +24,9 @@ function createApp() {
 
   router.use('/api/register', registerModule.routes());
   router.use('/api/auth', authModule.routes());
-  router.use('/api/data', averageDataModule.routes());
+  router.use('/api/average_data', averageDataModule.routes());
+  router.use('/api/data', dataModule.routes());
+
   router.use(
     jwtMiddleware({
       secret: config.secret,
