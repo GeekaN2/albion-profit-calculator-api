@@ -6,10 +6,10 @@ const items = require('../../static/items.json');
 const nc = NATS.connect('nats://public:thenewalbiondata@albion-online-data.com:4222');
 var collection;
 
-(async function() {
+(async function () {
   const connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
   const db = connection.db('albion');
-  collection = db.collection('items_data');
+  collection = db.collection('market_orders');
 
   console.log('Connected to mongodb', new Date());
 })();
@@ -26,6 +26,10 @@ const cityCode = {
 
 let gotMessages = false;
 
+const kek = setInterval(function () {
+  console.log('1 minute past', new Date());
+}, 60 * 1000);
+
 nc.subscribe('marketorders.deduped.bulk', async function (msg) {
   const response = JSON.parse(msg);
 
@@ -35,12 +39,57 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
     console.log('Got some messages');
   }
 
+  const day = 24 * 60 * 60 * 1000;
+
   for (let item of response) {
-    if (!items.some(name => item.ItemTypeId.slice(3).includes(name)) || item.ItemTypeId.slice(1, 2) < 4 || !cityCode[item.LocationId]) {
+    if (!items.some(name => item.ItemTypeId.slice(2).includes(name)) || item.ItemTypeId.slice(1, 2) < 4 || !cityCode[item.LocationId]) {
       continue;
     }
-    
-    if (item.AuctionType == 'offer') {
+
+    const itemInDB = await collection.findOne({ OrderId: item.Id });
+
+    if (itemInDB === null) {
+      item.Expires = new Date(item.Expires);
+
+      if (item.Expires - Date.now() > 7 * day) {
+        item.Expires = new Date(Date.now() + 7 * day);
+      }
+
+      await collection.insertOne({
+        OrderId: item.Id,
+        ItemId: item.ItemTypeId,
+        LocationId: item.LocationId,
+        QualityLevel: item.QualityLevel,
+        UnitPriceSilver: item.UnitPriceSilver,
+        Amount: item.Amount,
+        AuctionType: item.AuctionType,
+        CreatedAt: new Date(),
+        UpdatedAt: new Date(),
+        Expires: item.Expires
+      });
+      console.log('Created', item.ItemTypeId, 'in', cityCode[item.LocationId], 'quality', item.QualityLevel);
+    } else {
+      item.Expires = new Date(item.Expires);
+
+      if (item.Expires - Date.now() > 30 * day) {
+        item.Expires = new Date(Date.now() + 7 * day);
+      }
+
+      await collection.updateOne({
+        OrderId: item.Id
+      }, {
+        $set: {
+          UnitPriceSilver: item.UnitPriceSilver,
+          Amount: item.Amount,
+          UpdatedAt: new Date(),
+        }
+      });
+
+      console.log('Updated', item.ItemTypeId, 'in', cityCode[item.LocationId], 'quality', item.QualityLevel);
+    }
+
+
+    /**if (item.AuctionType == 'offer') {
       await collection.updateOne({
         itemId: item.ItemTypeId,
         quality: item.QualityLevel,
@@ -70,7 +119,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
         }
       },
       { upsert: true });
-    }
+    }*/
 
     // console.log('Updated', item.ItemTypeId, 'in', cityCode[item.LocationId], 'quality', item.QualityLevel);
   }

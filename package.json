@@ -25,7 +25,8 @@
     "lint": "eslint src/ --ext .js --fix",
     "run-worker-dev": "nodemon src/modules/worker/index.js",
     "run-worker-prod": "node src/modules/worker/index.js",
-    "nats": "node src/modules/nats"
+    "nats": "node src/modules/nats",
+    "migrations": "node src/migrations/fill_market_orders.js"
   },
   "devDependencies": {
     "eslint": "^7.4.0",
