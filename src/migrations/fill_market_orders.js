@@ -74,8 +74,6 @@ async function updateOrder(order) {
   }
 
   await collection.updateOne({ OrderId: item.OrderId }, { $set: item }, { upsert: true });
-
-  console.log('Updated', item.ItemId);
 }
 
 function sleep (time) {
