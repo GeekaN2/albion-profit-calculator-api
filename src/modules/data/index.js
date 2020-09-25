@@ -13,8 +13,6 @@ router.get('/', async (ctx) => {
   locations = locations.map(location => getLocationIdFromLocation(location));
   qualities = qualities.split(',').map(quality => Number(quality)) || [];
 
-  console.log(items, locations, qualities);
-
   let cursor = await ctx.mongo.db('albion').collection('market_orders').find({
     $and: [
       { ItemId: { $in: items } },
@@ -35,17 +33,22 @@ router.get('/', async (ctx) => {
         sellPriceMin: 0,
         sellPriceMinDate: "1970-01-01T00:00:00.000Z",
         buyPriceMax: 0,
-        buyPriceMaxDate:"1970-01-01T00:00:00.000Z"
+        buyPriceMaxDate: "1970-01-01T00:00:00.000Z"
       }
     }
-    
-    if (order.AuctionType == 'offer' && (normalizedData[orderKey].sellPriceMin == 0 || order.UnitPriceSilver < normalizedData[orderKey].sellPriceMin)) {
+
+    if (order.AuctionType == 'offer' &&
+      (normalizedData[orderKey].sellPriceMin == 0 ||
+        (order.UnitPriceSilver < normalizedData[orderKey].sellPriceMin && normalizedData[orderKey].sellPriceMinDate - order.UpdatedAt <= 300 * 1000))) {
       normalizedData[orderKey] = {
         ...normalizedData[orderKey],
         sellPriceMin: order.UnitPriceSilver,
         sellPriceMinDate: order.UpdatedAt
       }
-    } else if (order.AuctionType == 'request' && (normalizedData[orderKey].buyPriceMax == 0 || order.UnitPriceSilver > normalizedData[orderKey].buyPriceMax)) {
+    } else if (order.AuctionType == 'request' &&
+      (normalizedData[orderKey].buyPriceMax == 0 ||
+        (order.UnitPriceSilver > normalizedData[orderKey].buyPriceMax && normalizedData[orderKey].buyPriceMaxDate - order.UpdatedAt <= 300 * 1000))) {
+
       normalizedData[orderKey] = {
         ...normalizedData[orderKey],
         buyPriceMax: order.UnitPriceSilver,

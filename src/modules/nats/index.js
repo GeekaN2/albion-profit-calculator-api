@@ -87,40 +87,5 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
 
       console.log('Updated', item.ItemTypeId, 'in', cityCode[item.LocationId], 'quality', item.QualityLevel);
     }
-
-
-    /**if (item.AuctionType == 'offer') {
-      await collection.updateOne({
-        itemId: item.ItemTypeId,
-        quality: item.QualityLevel,
-        location: cityCode[item.LocationId]
-      }, {
-        $set: {
-          itemId: item.ItemTypeId,
-          quality: item.QualityLevel,
-          sellPrice: item.UnitPriceSilver,
-          sellPriceDate: new Date(),
-          location: cityCode[item.LocationId],
-        }
-      },
-      { upsert: true });
-    } else if (item.AuctionType == 'request') {
-      await collection.updateOne({
-        itemId: item.ItemTypeId,
-        quality: item.QualityLevel,
-        location: cityCode[item.LocationId]
-      }, {
-        $set: {
-          itemId: item.ItemTypeId,
-          quality: item.QualityLevel,
-          buyPrice: item.UnitPriceSilver,
-          buyPriceDate: new Date(),
-          location: cityCode[item.LocationId]
-        }
-      },
-      { upsert: true });
-    }*/
-
-    // console.log('Updated', item.ItemTypeId, 'in', cityCode[item.LocationId], 'quality', item.QualityLevel);
   }
 })
