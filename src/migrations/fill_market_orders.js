@@ -65,7 +65,7 @@ async function updateOrder(order) {
     Expires: new Date(order[8])
   }
 
-  if (!items.some(name => item.ItemId.slice(3).includes(name)) || item.ItemId.slice(1, 2) < 4 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
+  if (!items.some(name => item.ItemId.slice(2).includes(name)) || item.ItemId.slice(1, 2) < 4 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
     return;
   }
 
