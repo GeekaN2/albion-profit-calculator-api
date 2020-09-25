@@ -2,9 +2,12 @@ const NATS = require('nats');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
 const items = require('../../static/items.json');
+const { getLocationFromLocationId, isAvailableLocation } = require('../../utlis');
 
 const nc = NATS.connect('nats://public:thenewalbiondata@albion-online-data.com:4222');
 var collection;
+let quantityOfUpdatedOrders = 0;
+let quantityOfCreatedOrders = 0;
 
 (async function () {
   const connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -14,20 +17,14 @@ var collection;
   console.log('Connected to mongodb', new Date());
 })();
 
-const cityCode = {
-  7: 'Thetford',
-  1002: 'Lymhurst',
-  2004: 'Bridgewatch',
-  3003: 'Black Market',
-  3005: 'Caerleon',
-  3008: 'Martlock',
-  4002: 'Fort Sterling',
-}
-
 let gotMessages = false;
 
-const kek = setInterval(function () {
+const logInterval = setInterval(function () {
   console.log('1 minute past', new Date());
+  console.log('Updated', quantityOfUpdatedOrders, 'orders');
+  console.log('Created', quantityOfCreatedOrders, 'orders');
+
+  quantityOfCreatedOrders = quantityOfUpdatedOrders = 0;
 }, 60 * 1000);
 
 nc.subscribe('marketorders.deduped.bulk', async function (msg) {
@@ -42,7 +39,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
   const day = 24 * 60 * 60 * 1000;
 
   for (let item of response) {
-    if (!items.some(name => item.ItemTypeId.slice(2).includes(name)) || item.ItemTypeId.slice(1, 2) < 4 || !cityCode[item.LocationId]) {
+    if (!items.some(name => item.ItemTypeId.slice(2).includes(name)) || item.ItemTypeId.slice(1, 2) < 4 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
       continue;
     }
 
@@ -67,7 +64,10 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
         UpdatedAt: new Date(),
         Expires: item.Expires
       });
-      console.log('Created', item.ItemTypeId, 'in', cityCode[item.LocationId], 'quality', item.QualityLevel);
+
+      // console.log('Created', item.ItemTypeId, 'in', getLocationFromLocationId(item.LocationId), 'quality', item.QualityLevel);
+      
+      quantityOfCreatedOrders++;
     } else {
       item.Expires = new Date(item.Expires);
 
@@ -85,7 +85,9 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
         }
       });
 
-      console.log('Updated', item.ItemTypeId, 'in', cityCode[item.LocationId], 'quality', item.QualityLevel);
+      //console.log('Updated', item.ItemTypeId, 'in', getLocationFromLocationId(item.LocationId), 'quality', item.QualityLevel);
+
+      quantityOfUpdatedOrders++;
     }
   }
 })
