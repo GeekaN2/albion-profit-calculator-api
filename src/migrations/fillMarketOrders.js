@@ -8,7 +8,6 @@ const { getLocationFromLocationId, isAvailableLocation } = require('../utlis');
 const day = 24 * 60 * 60 * 1000;
 let quantity = 0;
 let collection;
-
 let splitstream = fs.createReadStream('./src/static/migrations/market_orders.txt').pipe(split());
 
 /**

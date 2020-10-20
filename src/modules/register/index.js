@@ -55,7 +55,7 @@ router.post('/add-random-token', async (ctx) => {
   const { secret, role } = ctx.request.body;
   const roles = ['tester', 'user', 'admin'];
 
-  if (secret != config.register_secret) {
+  if (secret != config.registerSecret) {
     ctx.body = 'Invalid secret string';
 
     return;

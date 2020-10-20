@@ -23,4 +23,13 @@ $ npm run-worker-prod
 $ npm run lint
 ```
 
+## Migrations and other
+```bash
+# create mongodb indexes
+$ yarn create-indexes
+
+# run migrations
+$ yarn migrations
+```
+
 Don't forget to run mongodb.

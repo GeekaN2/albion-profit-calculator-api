@@ -115,6 +115,78 @@ function getLocationFromLocationId(locationId) {
   return cityCodes[locationId]
 }
 
+/**
+ * Normalize previous item and new item by date and price
+ * 
+ * @param oldItem - previous item
+ * @param newItem - new item 
+ */
+function normalizeItem(oldItem, newItem) {
+  const previousDay = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  if (new Date(oldItem.date) >= previousDay && new Date(newItem.date) <= previousDay) {
+    return oldItem;
+  } else if (new Date(oldItem.date) <= previousDay && new Date(newItem.date) >= previousDay) {
+    return newItem;
+  }
+
+  return oldItem.price > newItem.price ? oldItem: newItem;
+}
+
+/**
+ * Minimum price from sales orders or maximum price from purchase orders
+ * 
+ * @param {ResponseModel} item 
+ */
+function normalizedPriceAndDate(item) {
+  const previousDay = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  const sellPriceRespone = {
+    item: item.id,
+    quality: item.quality,
+    location: item.location,
+    price: item.sellPriceMin,
+    date: item.sellPriceMinDate,
+    marketFee: 4.5
+  }
+
+  const buyPriceResponse = {
+    item: item.id,
+    quality: item.quality,
+    location: item.location,
+    price: item.buyPriceMax,
+    date: item.buyPriceMaxDate,
+    marketFee: 3
+  }
+
+  if (item.sellPriceMin != 0 && item.buyPriceMax == 0) {
+    return sellPriceRespone
+  }
+
+  if (item.sellPriceMin == 0 && item.buyPriceMax != 0) {
+    return buyPriceResponse;
+  }
+
+  if (item.sellPriceMin == 0 && item.buyPriceMax == 0) {
+    return buyPriceResponse;
+  }
+
+  if (new Date(item.sellPriceMinDate) >= previousDay && new Date(item.buyPriceMaxDate) <= previousDay) {
+    return sellPriceRespone;
+  }
+
+  if (new Date(item.sellPriceMinDate) <= previousDay && new Date(item.buyPriceMaxDate) >= previousDay) {
+    return buyPriceResponse;
+  }
+
+  // Compare prices with fee,
+  if (item.buyPriceMax * 0.97 > item.sellPriceMin * 0.955) {
+    return buyPriceResponse;
+  }
+
+  return sellPriceRespone;
+}
+
 module.exports = {
   generateRegisterToken,
   validateRegister,
@@ -123,5 +195,7 @@ module.exports = {
   sleep,
   generateOrderKey,
   getLocationIdFromLocation,
-  getLocationFromLocationId
+  getLocationFromLocationId,
+  normalizedPriceAndDate,
+  normalizeItem
 }

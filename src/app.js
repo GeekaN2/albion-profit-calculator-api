@@ -13,6 +13,7 @@ const registerModule = require('./modules/register');
 const authModule = require('./modules/auth');
 const averageDataModule = require('./modules/average_data');
 const dataModule = require('./modules/data');
+const transportationsModule = require('./modules/transportations');
 
 function createApp() {
   const app = new Koa();
@@ -26,6 +27,7 @@ function createApp() {
   router.use('/api/auth', authModule.routes());
   router.use('/api/average_data', averageDataModule.routes());
   router.use('/api/data', dataModule.routes());
+  router.use('/api/transportations', transportationsModule.routes());
 
   router.use(
     jwtMiddleware({

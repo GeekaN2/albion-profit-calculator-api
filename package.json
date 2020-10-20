@@ -27,7 +27,8 @@
     "run-worker-dev": "nodemon src/modules/worker/index.js",
     "run-worker-prod": "node src/modules/worker/index.js",
     "nats": "node src/modules/nats",
-    "migrations": "node src/migrations/fill_market_orders.js"
+    "migrations": "node src/migrations/fillMarketOrders.js",
+    "create-indexes": "node src/migrations/createIndexes.js"
   },
   "devDependencies": {
     "eslint": "^7.4.0",
