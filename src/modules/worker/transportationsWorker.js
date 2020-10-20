@@ -29,10 +29,10 @@ class Worker {
       this.connection = connection;
       this.db = connection.db('albion');
 
-      console.log("Worker successfully connected to MongoDB");
+      console.log("Transportations worker: successfully connected to MongoDB");
     }
     catch(ex) {
-      console.log("Worker connection failed");
+      console.log("Transportations worker: connection failed");
     }
   }
 
@@ -40,7 +40,7 @@ class Worker {
    * Run worker
    */
   async start() {
-    console.log('Worker started', new Date());
+    console.log('Transportations worker: started', new Date());
     
     await this.connect();
   }
@@ -49,7 +49,7 @@ class Worker {
    * Stop worker
    */
   async stop() {
-    console.log('Worker stopped', new Date());
+    console.log('Transportations worker: stopped', new Date());
 
     await this.connection.close();
   }
@@ -57,8 +57,16 @@ class Worker {
   /**
    * Update one item in mongodb
    */
-  async updateOneItem() {
-    // await this.db.collection('normalized_prices').updateOne({}, { upsert: true });
+  async updateOneItem(item) {
+    await this.db.collection('normalized_prices').updateOne({
+      itemId: item.itemId,
+      location: item.location
+    }, {
+      $set: {
+        ...item
+      }
+    },
+     { upsert: true });
   }
 }
 
@@ -71,15 +79,18 @@ async function runWorker() {
   await worker.start();
 
   for (let baseItemName of items) {
-    const allItems = createArrayOfAllNames(baseItemName);
-    const itemsData = await axios.get(`${config.apiUrl}/data?${allItems.join(',')}&locations=${cities.join(',')}&qualities=${qualities.join(',')}`);
+    // TODO: replace createArrayOfAllNames function
+    // need different algorithms for items
+    const allItems = createArrayOfAllNames(`T4${baseItemName}`);
+    const itemsData = await axios.get(`${config.apiUrl}/data?items=${allItems.join(',')}&locations=${cities.join(',')}&qualities=${qualities.join(',')}`);
     
-    let normalizedItems = cities.forEach(city => normalizedItems[city] = {});
+    let normalizedItems = {};
+    cities.forEach(city => normalizedItems[city] = {});
 
-    itemsData.forEach((item) => {
-      if (!normalizedItems[item.itemId]) {
+    itemsData.data.forEach((item) => {
+      if (!normalizedItems[item.location][item.itemId]) {
         normalizedItems[item.location][item.itemId] = {
-          item: item.id,
+          itemId: item.itemId,
           quality: item.quality,
           price: 0,
           date: new Date(0),
@@ -89,9 +100,9 @@ async function runWorker() {
       }
 
       const currentPrice = normalizedItems[item.location][item.itemId];
-      let newPrice = normalizedPriceAndDate(item);
+      const normalizedNewPrice = normalizedPriceAndDate(item);
+      const newPrice = normalizeItem(currentPrice, normalizedNewPrice);
 
-      newPrice = normalizeItem(currentPrice, newPrice);
       normalizedItems[item.location][item.itemId] = newPrice;
     });
 
@@ -101,7 +112,8 @@ async function runWorker() {
       }
     }
 
-    console.log('Updated', baseItemName);
+    console.log('Transportations worker: Updated', baseItemName);
+
     await sleep(20);
   }
 

@@ -142,7 +142,7 @@ function normalizedPriceAndDate(item) {
   const previousDay = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   const sellPriceRespone = {
-    item: item.id,
+    itemId: item.itemId,
     quality: item.quality,
     location: item.location,
     price: item.sellPriceMin,
@@ -151,7 +151,7 @@ function normalizedPriceAndDate(item) {
   }
 
   const buyPriceResponse = {
-    item: item.id,
+    itemId: item.itemId,
     quality: item.quality,
     location: item.location,
     price: item.buyPriceMax,
@@ -160,7 +160,7 @@ function normalizedPriceAndDate(item) {
   }
 
   if (item.sellPriceMin != 0 && item.buyPriceMax == 0) {
-    return sellPriceRespone
+    return sellPriceRespone;
   }
 
   if (item.sellPriceMin == 0 && item.buyPriceMax != 0) {
