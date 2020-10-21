@@ -1,5 +1,6 @@
 const { workerData, parentPort } = require('worker_threads')
-const { createArrayOfAllNames, sleep, normalizedPriceAndDate, normalizeItem } = require('../../utlis');
+const { sleep } = require('../../utlis');
+const { normalizedPriceAndDate, normalizeItem, createArrayOfAllNames } = require('./utils');
 const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
@@ -79,7 +80,7 @@ async function runWorker() {
   await worker.start();
 
   for (let baseItemName of items) {
-    // TODO: replace createArrayOfAllNames function
+    // TODO: replace createArrayOfAllItemNames function
     // need different algorithms for items
     const allItems = createArrayOfAllNames(`T4${baseItemName}`);
     const itemsData = await axios.get(`${config.apiUrl}/data?items=${allItems.join(',')}&locations=${cities.join(',')}&qualities=${qualities.join(',')}`);
@@ -116,7 +117,6 @@ async function runWorker() {
 
     await sleep(20);
   }
-
 
   await worker.stop();
 }

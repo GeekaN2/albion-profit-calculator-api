@@ -1,5 +1,6 @@
 const { workerData, parentPort } = require('worker_threads')
-const { createArrayOfAllNames, sleep } = require('../../utlis');
+const { sleep } = require('../../utlis');
+const { createArrayOfAllItems } = require('./utils');
 const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
@@ -33,10 +34,10 @@ class Worker {
       let connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
       this.connection = connection;
       this.db = connection.db('albion');
-      console.log("Worker successfully connected to MongoDB");
+      console.log("Average data worker: successfully connected to MongoDB");
     }
     catch(ex) {
-      console.log("Worker connection failed");
+      console.log("Average data worker: connection failed");
     }
   }
 
@@ -44,7 +45,7 @@ class Worker {
    * Run worker
    */
   async start() {
-    console.log('Worker started', new Date());
+    console.log('Average data worker: started', new Date());
     
     await this.connect();
   }
@@ -53,7 +54,7 @@ class Worker {
    * Stop worker
    */
   async stop() {
-    console.log('Worker stopped', new Date());
+    console.log('Average data worker: stopped', new Date());
 
     await this.connection.close();
   }
@@ -147,7 +148,7 @@ async function runWorker() {
   await worker.start();
 
   for (let baseItemName of allItems) {
-    const itemsWithTierAndSubtier = createArrayOfAllNames(`T4${baseItemName}`);
+    const itemsWithTierAndSubtier = createArrayOfAllItems(`T4${baseItemName}`);
 
     for (let item of itemsWithTierAndSubtier) {
       const collectedData = await worker.collectDataForOneItem(item);
@@ -158,7 +159,7 @@ async function runWorker() {
       await sleep(1000);
     }
 
-    console.log('Updated', baseItemName);
+    console.log('Average data worker: updated', baseItemName);
   }
 
   // For test
