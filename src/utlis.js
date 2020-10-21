@@ -59,10 +59,52 @@ function generateOrderKey(itemId, locationId, qualityLevel) {
   return `${itemId}:${locationId}:${qualityLevel}`;
 }
 
+/**
+ * Get location id from location name
+ * 
+ * @param {String} location - name of location
+ * @return {Number} location id
+ */
+function getLocationIdFromLocation(location) {
+  const codes = {
+    'Thetford': 7,
+    'Lymhurst': 1002,
+    'Bridgewatch': 2004,
+    'Black Market': 3003,
+    'Caerleon': 3005,
+    'Martlock': 3008,
+    'Fort Sterling': 4002
+  }
+
+  return codes[location];
+}
+
+/**
+ * Get location from location id
+ * 
+ * @param {Number} locationId - id of location
+ * @returns {String} name of location
+ */
+function getLocationFromLocationId(locationId) {
+  const cityCodes = {
+    7: 'Thetford',
+    1002: 'Lymhurst',
+    2004: 'Bridgewatch',
+    3003: 'Black Market',
+    3005: 'Caerleon',
+    3008: 'Martlock',
+    4002: 'Fort Sterling',
+  }
+  
+  return cityCodes[locationId]
+}
+
 module.exports = {
   generateRegisterToken,
   validateRegister,
   isAvailableLocation,
   sleep,
-  generateOrderKey
+  generateOrderKey,
+  getLocationIdFromLocation,
+  getLocationFromLocationId
 }

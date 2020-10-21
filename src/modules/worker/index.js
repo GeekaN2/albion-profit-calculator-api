@@ -21,16 +21,19 @@ function runWorker(workerPath) {
 
 
 /**
- * Run worker every midnight
+ * Run average data worker every midnight
  */
-// let runAtMidnight = setTimeout(async function tickMidnight() {
-//   await runWorker('./src/modules/worker/averageDataWorker.js').catch(err => console.log('Something went wrong in average data worker', err));
+let runAtMidnight = setTimeout(async function tickMidnight() {
+  await runWorker('./src/modules/worker/averageDataWorker.js').catch(err => console.log('Something went wrong in average data worker', err));
 
-//   const nextDay = (new Date()).setUTCHours(24, 0, 0, 0);
+  const nextDay = (new Date()).setUTCHours(24, 0, 0, 0);
 
-//   runAtMidnight = setTimeout(tickMidnight, nextDay - Date.now());
-// }, 0);
+  runAtMidnight = setTimeout(tickMidnight, nextDay - Date.now());
+}, 0);
 
+/**
+ * Run transportations worker every 5 minutes
+ */
 let runEvery5Minutes = setTimeout(async function tick5Minutes() {
   await runWorker('./src/modules/worker/transportationsWorker.js').catch(err => console.log('Something went wrong in transportaions worker', err));
 
