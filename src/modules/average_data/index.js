@@ -16,7 +16,7 @@ router.get('/', async (ctx) => {
     $and: [
       { itemName: { $in: items } },
       { location: { $in: locations } }]
-  }, { projection: { _id: 0 } }).toArray();
+  }, { projection: { _id: 0 } });
 
   let normalizedData = {};
 

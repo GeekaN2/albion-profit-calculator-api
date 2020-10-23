@@ -60,9 +60,7 @@ function createArrayOfAllArtifacts(itemName) {
       allNames.push(`QUESTITEM_TOKEN_ROYAL_T${tier}`);
     }
   } else if (itemName.includes('INSIGHT')) {
-    for (let tier = 4; tier <= 8; tier++) {
-      allNames.push(`T${tier}_RANDOM_DUNGEON_SOLO_TOKEN_1`);
-    }
+    allNames.push(`T4_SKILLBOOK_STANDARD`);
   } else {
     for (let tier = 4; tier <= 8; tier++) {
       allNames.push(`T${tier}_ARTEFACT${itemName.slice(2)}`);
