@@ -39,7 +39,10 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
   const day = 24 * 60 * 60 * 1000;
 
   for (let item of response) {
-    if (!items.some(name => item.ItemTypeId.slice(2).includes(name)) || item.ItemTypeId.slice(1, 2) < 4 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
+    const tier = item.ItemTypeId.match(/T\d/);
+    const idWithoutTier = item.ItemTypeId.replace(/T\d/, '');
+
+    if (!items.some(name => idWithoutTier.includes(name)) || tier < 4 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
       continue;
     }
 
