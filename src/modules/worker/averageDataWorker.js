@@ -1,5 +1,6 @@
 const { workerData, parentPort } = require('worker_threads')
-const { createArrayOfAllNames, sleep } = require('../../utlis');
+const { sleep } = require('../../utlis');
+const { createArrayOfAllItems } = require('./utils');
 const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
@@ -20,6 +21,7 @@ const baseUrl = 'https://www.albion-online-data.com/api/v2/stats/charts';
 const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 const formatDate = `${monthAgo.getMonth() + 1}-${monthAgo.getDate()}-${monthAgo.getFullYear()}`;
 const qualities = '1,2,3';
+const zeroDate = (new Date(0)).toISOString().slice(0,-5);
 
 class Worker {
   constructor() {}
@@ -32,10 +34,10 @@ class Worker {
       let connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
       this.connection = connection;
       this.db = connection.db('albion');
-      console.log("Worker successfully connected to MongoDB");
+      console.log("Average data worker: successfully connected to MongoDB");
     }
     catch(ex) {
-      console.log("Worker connection failed");
+      console.log("Average data worker: connection failed");
     }
   }
 
@@ -43,7 +45,7 @@ class Worker {
    * Run worker
    */
   async start() {
-    console.log('Worker started', new Date());
+    console.log('Average data worker: started', new Date());
     
     await this.connect();
   }
@@ -52,7 +54,7 @@ class Worker {
    * Stop worker
    */
   async stop() {
-    console.log('Worker stopped', new Date());
+    console.log('Average data worker: stopped', new Date());
 
     await this.connection.close();
   }
@@ -102,6 +104,8 @@ class Worker {
     for (let city in collectedData) {
       collectedData[city].averagePrice = collectedData[city].sumCost / collectedData[city].amountOfItems;
       collectedData[city].averageItems = collectedData[city].amountOfItems / collectedData[city].days.size;
+      collectedData[city].firstCheckDate = collectedData[city].days.values().next().value;
+      collectedData[city].lastCheckDate = Array.from(collectedData[city].days).pop();
     }
 
     return collectedData;
@@ -123,7 +127,9 @@ class Worker {
         itemName: collectedData[city].itemName,
         location: city,
         averagePrice: collectedData[city].averagePrice || 0,
-        averageItems: collectedData[city].averageItems || 0
+        averageItems: collectedData[city].averageItems || 0,
+        firstCheckDate: collectedData[city].firstCheckDate || zeroDate,
+        lastCheckDate: collectedData[city].lastCheckDate || zeroDate
       });
     }
 
@@ -142,7 +148,7 @@ async function runWorker() {
   await worker.start();
 
   for (let baseItemName of allItems) {
-    const itemsWithTierAndSubtier = createArrayOfAllNames(baseItemName);
+    const itemsWithTierAndSubtier = createArrayOfAllItems(`T4${baseItemName}`);
 
     for (let item of itemsWithTierAndSubtier) {
       const collectedData = await worker.collectDataForOneItem(item);
@@ -153,7 +159,7 @@ async function runWorker() {
       await sleep(1000);
     }
 
-    console.log('Updated', baseItemName);
+    console.log('Average data worker: updated', baseItemName);
   }
 
   // For test

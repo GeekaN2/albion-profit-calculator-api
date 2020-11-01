@@ -15,7 +15,9 @@
     "koa-mongo": "^1.9.1",
     "koa-router": "^9.1.0",
     "mongodb": "^3.6.0",
+    "nats": "^1.4.12",
     "rc": "^1.2.8",
+    "split": "^1.0.1",
     "uuid": "^8.2.0"
   },
   "scripts": {
@@ -23,7 +25,10 @@
     "prod": "node src/app.js",
     "lint": "eslint src/ --ext .js --fix",
     "run-worker-dev": "nodemon src/modules/worker/index.js",
-    "run-worker-prod": "node src/modules/worker/index.js"
+    "run-worker-prod": "node src/modules/worker/index.js",
+    "nats": "node src/modules/nats",
+    "migrations": "node src/migrations/fillMarketOrders.js",
+    "create-indexes": "node src/migrations/createIndexes.js"
   },
   "devDependencies": {
     "eslint": "^7.4.0",
