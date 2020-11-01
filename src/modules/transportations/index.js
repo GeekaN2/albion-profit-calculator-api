@@ -52,4 +52,65 @@ router.get('/', async (ctx) => {
   ctx.body = normalizedData;
 });
 
+/**
+ * Get normalized items data sorted by
+ * 
+ * @param {number} skip - number of sorted items to skip
+ * @param {number} count - number of sorted items to return
+ * @param {string} from - location to buy items
+ * @param {string} to - location to sell items
+ */
+router.get('/analyze', async (ctx) => {
+  let { skip = 0, count = 20, from = 'Caerleon', to = 'Caerleon' } = ctx.request.query;
+
+  skip = Number(skip) || 0;
+  count = Math.min(Number(count) || 0, 200);
+
+  let cursor = await ctx.mongo.db('albion').collection('normalized_prices').find(
+    {
+      location: { $in: [from, to] }
+    }, {
+    projection: { _id: 0 }
+  });
+
+  let itemsByLocation = {};
+
+  await cursor.forEach(item => {
+    if (!itemsByLocation[item.location]) {
+      itemsByLocation[item.location] = {};
+    }
+    
+    itemsByLocation[item.location][item.itemId] = item;
+  });
+
+  let transportationPrices = [];
+
+  for (let itemId in itemsByLocation[from]) {
+    if (itemsByLocation[from][itemId].price == 0 || itemsByLocation[to][itemId].price == 0) {
+      continue;
+    }
+    
+    const marketFee = itemsByLocation[to][itemId].marketFee;
+    const priceFrom = itemsByLocation[from][itemId].price;
+    const priceTo = itemsByLocation[to][itemId].price;
+    const profit = priceTo - priceFrom;
+    const percentageProfit = profit / priceFrom * 100;
+
+    // If the profit is so big just skip this item
+    if (percentageProfit > 1000) {
+      continue;
+    }
+    transportationPrices.push({
+      itemId,
+      profit,
+      percentageProfit
+    });
+  }
+
+  transportationPrices.sort((item1, item2) => item2.percentageProfit - item1.percentageProfit);
+  transportationPrices = transportationPrices.slice(skip, skip + count);
+
+  ctx.body = transportationPrices;
+})
+
 module.exports = router;
