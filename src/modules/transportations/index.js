@@ -79,20 +79,21 @@ router.get('/analyze', async (ctx) => {
     if (!itemsByLocation[item.location]) {
       itemsByLocation[item.location] = {};
     }
-    
+
     itemsByLocation[item.location][item.itemId] = item;
   });
 
   let transportationPrices = [];
 
   for (let itemId in itemsByLocation[from]) {
-    if (itemsByLocation[from][itemId].price == 0 || itemsByLocation[to][itemId].price == 0) {
+    if (itemsByLocation[from][itemId].normalizedPrice == 0 || itemsByLocation[to][itemId].normalizedPrice == 0) {
       continue;
     }
-    
+
     const marketFee = itemsByLocation[to][itemId].marketFee;
-    const priceFrom = itemsByLocation[from][itemId].price;
-    const priceTo = itemsByLocation[to][itemId].price;
+    const priceFrom = itemsByLocation[from][itemId].sellPriceMin;
+    const priceTo = itemsByLocation[to][itemId].normalizedPrice;
+
     const profit = priceTo - priceFrom;
     const percentageProfit = profit / priceFrom * 100;
 
@@ -100,9 +101,9 @@ router.get('/analyze', async (ctx) => {
     if (percentageProfit > 1000) {
       continue;
     }
+
     transportationPrices.push({
       itemId,
-      profit,
       percentageProfit
     });
   }
@@ -110,7 +111,28 @@ router.get('/analyze', async (ctx) => {
   transportationPrices.sort((item1, item2) => item2.percentageProfit - item1.percentageProfit);
   transportationPrices = transportationPrices.slice(skip, skip + count);
 
-  ctx.body = transportationPrices;
+  let response = [];
+
+  transportationPrices.forEach(item => {
+    const itemId = item.itemId;
+    const itemFrom = itemsByLocation[from][itemId];
+    const itemTo = itemsByLocation[to][itemId];
+
+    response.push({
+      itemId,
+      locationFrom: from,
+      locationTo: to,
+      priceFrom: itemFrom.sellPriceMin,
+      priceTo: itemTo.normalizedPrice,
+      dateFrom: itemFrom.date,
+      dateTo: itemTo.date,
+      marketFee: itemTo.marketFee,
+      qualityFrom: itemFrom.quality,
+      qualityTo: itemTo.quality
+    });
+  });
+
+  ctx.body = response;
 })
 
 module.exports = router;

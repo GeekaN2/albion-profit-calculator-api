@@ -105,7 +105,7 @@ function normalizeItem(oldItem, newItem) {
     return newItem;
   }
 
-  return oldItem.price > newItem.price ? oldItem: newItem;
+  return oldItem.normalizedPrice > newItem.normalizedPrice ? oldItem: newItem;
 }
 
 /**
@@ -120,7 +120,8 @@ function normalizedPriceAndDate(item) {
     itemId: item.itemId,
     quality: item.quality,
     location: item.location,
-    price: item.sellPriceMin,
+    normalizedPrice: item.sellPriceMin,
+    sellPriceMin: item.sellPriceMin,
     date: item.sellPriceMinDate,
     marketFee: 4.5
   }
@@ -129,7 +130,8 @@ function normalizedPriceAndDate(item) {
     itemId: item.itemId,
     quality: item.quality,
     location: item.location,
-    price: item.buyPriceMax,
+    normalizedPrice: item.buyPriceMax,
+    sellPriceMin: item.sellPriceMin,
     date: item.buyPriceMaxDate,
     marketFee: 3
   }

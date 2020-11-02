@@ -93,7 +93,8 @@ async function runWorker() {
         normalizedItems[item.location][item.itemId] = {
           itemId: item.itemId,
           quality: item.quality,
-          price: 0,
+          normalizedPrice: 0,
+          sellPriceMin: 0,
           date: new Date(0),
           location: item.location,
           marketFee: 3
