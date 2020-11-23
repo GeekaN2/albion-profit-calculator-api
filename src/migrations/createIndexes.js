@@ -14,6 +14,9 @@ async function main() {
 
   await db.collection('average_data').createIndex({ itemName: 1, location: 1 });
 
+  // Token expires after 1 month
+  await db.collection('refresh_tokens').createIndex( { dtCreated: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
+
   console.log('Indexes created');
 }
 

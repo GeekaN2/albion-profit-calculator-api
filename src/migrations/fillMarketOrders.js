@@ -91,7 +91,7 @@ splitstream.on('data', async function (order) {
   try {
     await updateOrder(order);
   } catch {
-    console.log('Bad order');
+    console.log('Bad order (Finished)');
   }
   
   splitstream.resume();

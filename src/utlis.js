@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('./config');
+const { v4: uuid } = require('uuid');
 
 
 /**
@@ -9,6 +10,28 @@ function validateRegister(...data) {
   return data.every((elem) => {
     return elem != undefined && elem.trim() != '';
   });
+}
+
+/**
+ * Generate refresh token
+ * 
+ * @param {string} role 
+ */
+function generateRefreshToken(userId) {
+  return {
+    userId: userId, 
+    token: uuid(),
+    dtCreated: new Date()
+  }
+}
+
+/**
+ * Generate acess token
+ * 
+ * @param {string} userId 
+ */
+function generateAccessToken(userId) {
+  return jwt.sign({ id: userId }, config.secret, { expiresIn: '1min' });
 }
 
 /**
@@ -101,6 +124,8 @@ function getLocationFromLocationId(locationId) {
 
 module.exports = {
   generateRegisterToken,
+  generateRefreshToken,
+  generateAccessToken,
   validateRegister,
   isAvailableLocation,
   sleep,
