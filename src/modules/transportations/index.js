@@ -61,10 +61,11 @@ router.get('/', async (ctx) => {
  * @param {string} to - location to sell items
  */
 router.get('/analyze', async (ctx) => {
-  let { skip = 0, count = 20, from = 'Caerleon', to = 'Caerleon' } = ctx.request.query;
+  let { skip = 0, count = 20, from = 'Caerleon', to = 'Caerleon', useHeuristicSort = false } = ctx.request.query;
 
   skip = Number(skip) || 0;
   count = Math.min(Number(count) || 0, 200);
+  useHeuristicSort = useHeuristicSort === 'true'
 
   let cursor = await ctx.mongo.db('albion').collection('normalized_prices').find(
     {
@@ -91,11 +92,19 @@ router.get('/analyze', async (ctx) => {
     }
 
     const marketFee = itemsByLocation[to][itemId].marketFee;
-    const priceFrom = itemsByLocation[from][itemId].sellPriceMin;
-    const priceTo = itemsByLocation[to][itemId].normalizedPrice;
+    const itemFrom = itemsByLocation[from][itemId];
+    const itemTo = itemsByLocation[to][itemId];
 
-    const profit = priceTo - priceFrom;
-    const percentageProfit = profit / priceFrom * 100;
+    const profit = itemTo.normalizedPrice * (1 - itemTo.marketFee / 100) - itemFrom.sellPriceMin;
+    const percentageProfit = profit / itemFrom.sellPriceMin * 100;
+    const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    
+    // test new param
+    const dateStat = (Number(new Date(itemFrom.date)) + Number(new Date(itemTo.date)) - 2 * dayAgo) / 100000;
+    const secondDateStat = (Number(new Date(itemFrom.date)) - dayAgo) * (Number(new Date(itemTo.date)) - dayAgo) / (100000 ** 2);
+
+    let heuristicStat = secondDateStat * (itemTo.averageItems + 1) * percentageProfit;
+    heuristicStat = secondDateStat < 0 && percentageProfit < 0 ? -heuristicStat : heuristicStat;
 
     // If the profit is so big just skip this item
     if (percentageProfit > 1000) {
@@ -104,11 +113,17 @@ router.get('/analyze', async (ctx) => {
 
     transportationPrices.push({
       itemId,
-      percentageProfit
+      percentageProfit,
+      heuristicStat
     });
   }
 
-  transportationPrices.sort((item1, item2) => item2.percentageProfit - item1.percentageProfit);
+  if (useHeuristicSort) {
+    transportationPrices.sort((item1, item2) => item2.heuristicStat - item1.heuristicStat);
+  } else {
+    transportationPrices.sort((item1, item2) => item2.percentageProfit - item1.percentageProfit);
+  }
+
   transportationPrices = transportationPrices.slice(skip, skip + count);
 
   let response = [];
@@ -128,7 +143,8 @@ router.get('/analyze', async (ctx) => {
       dateTo: itemTo.date,
       marketFee: itemTo.marketFee,
       qualityFrom: itemFrom.quality,
-      qualityTo: itemTo.quality
+      qualityTo: itemTo.quality,
+      averageItems: itemTo.averageItems
     });
   });
 

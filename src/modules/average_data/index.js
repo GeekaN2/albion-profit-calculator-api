@@ -8,7 +8,7 @@ const { isAvailableLocation } = require('../../utlis');
  */
 router.get('/', async (ctx) => {
   let { items, locations } = ctx.request.query;
-  
+
   items = items.split(',').filter(item => item.trim().length > 0);
   locations = locations.split(',').filter(location => isAvailableLocation(location));
 
@@ -44,8 +44,8 @@ router.get('/', async (ctx) => {
       }
     }
   }
-  
-  
+
+
   normalizedData = Object.values(normalizedData);
 
   ctx.body = normalizedData;

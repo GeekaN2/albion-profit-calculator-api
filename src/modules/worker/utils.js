@@ -117,21 +117,15 @@ function normalizedPriceAndDate(item) {
   const previousDay = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   const sellPriceRespone = {
-    itemId: item.itemId,
-    quality: item.quality,
-    location: item.location,
+    ...item,
     normalizedPrice: item.sellPriceMin,
-    sellPriceMin: item.sellPriceMin,
     date: item.sellPriceMinDate,
     marketFee: 4.5
   }
 
   const buyPriceResponse = {
-    itemId: item.itemId,
-    quality: item.quality,
-    location: item.location,
+    ...item,
     normalizedPrice: item.buyPriceMax,
-    sellPriceMin: item.sellPriceMin,
     date: item.buyPriceMaxDate,
     marketFee: 3
   }
