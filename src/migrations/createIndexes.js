@@ -17,6 +17,10 @@ async function main() {
   // Token expires after 1 month
   await db.collection('refresh_tokens').createIndex( { dtCreated: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
 
+  await db.collection('user_settings').createIndex( { userId: 1 }, { unique: true });
+  
+  await db.collection('users').createIndex({ nickname: 1 }, { unique: true });
+
   console.log('Indexes created');
 }
 

@@ -31,7 +31,7 @@ function generateRefreshToken(userId) {
  * @param {string} userId 
  */
 function generateAccessToken(userId) {
-  return jwt.sign({ id: userId }, config.secret, { expiresIn: '15min' });
+  return jwt.sign({ id: userId }, config.secret, { expiresIn: '30min' });
 }
 
 /**

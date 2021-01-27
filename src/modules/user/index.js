@@ -15,4 +15,27 @@ router.get('/', async ctx => {
   }
 });
 
+router.put('/tree-settings', async ctx => {
+  const { id: userId } = ctx.state.user;
+  const settings = ctx.request.body;
+
+  await ctx.mongo.db('albion').collection('user_settings').updateOne({ userId: mongo.ObjectId(userId) }, { $set: { treeSettings: settings }}, { upsert: true });
+
+  ctx.body = 'User settings updated'
+})
+
+router.get('/tree-settings', async ctx => {
+  const { id: userId } = ctx.state.user;
+
+  const settings = await ctx.mongo.db('albion').collection('user_settings').findOne({ userId: mongo.ObjectId(userId)});
+  
+  if (!settings) {
+    ctx.body = {};
+
+    return;
+  }
+
+  ctx.body = settings.treeSettings || {};
+});
+
 module.exports = router;

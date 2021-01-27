@@ -51,8 +51,8 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
     if (itemInDB === null) {
       item.Expires = new Date(item.Expires);
 
-      if (item.Expires - Date.now() > 7 * day) {
-        item.Expires = new Date(Date.now() + 7 * day);
+      if (item.Expires - Date.now() > 14 * day) {
+        item.Expires = new Date(Date.now() + 14 * day);
       }
 
       await collection.insertOne({
