@@ -18,8 +18,8 @@ async function main() {
   await db.collection('refresh_tokens').createIndex( { dtCreated: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 });
 
   await db.collection('user_settings').createIndex( { userId: 1 }, { unique: true });
-  
-  await db.collection('users').createIndex({ nickname: 1 }, { unique: true });
+
+  await db.collection('users').createIndex({ nickname: 1 });
 
   console.log('Indexes created');
 }
