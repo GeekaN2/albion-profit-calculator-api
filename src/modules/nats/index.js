@@ -42,7 +42,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
     const tier = item.ItemTypeId.match(/T\d/);
     const idWithoutTier = item.ItemTypeId.replace(/T\d/, '');
 
-    if (!items.some(name => idWithoutTier.includes(name)) || tier < 4 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
+    if (!items.some(name => idWithoutTier.includes(name)) || tier < 3 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
       continue;
     }
 
