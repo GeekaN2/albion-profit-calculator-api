@@ -11,7 +11,8 @@ router.get('/', async ctx => {
   }
 
   ctx.body = {
-    nickname: user.nickname
+    nickname: user.nickname,
+    role: user.role
   }
 });
 
