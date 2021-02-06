@@ -6,6 +6,10 @@ const bcrypt = require('bcrypt');
 router.post('/reset-password', async ctx => {
   const { nickname, password } = ctx.request.body;
 
+  if (!nickname || !password) {
+    ctx.body = 'Nickname and password cannot be empty';
+  }
+
   const user = await ctx.mongo.db('albion').collection('users').findOne({ nickname: nickname });
 
   if (!user) {
@@ -15,9 +19,9 @@ router.post('/reset-password', async ctx => {
   }
 
   if (!user.resetPassword) {
-    ctx.status = 403;
-
     ctx.body = "Not allowed to reset the password";
+
+    return;
   }
 
   await bcrypt.hash(password, 10).then(async function (hash) {
@@ -32,7 +36,7 @@ router.post('/reset-password', async ctx => {
     });
   });
 
-  ctx.body = "Password udpated";
+  ctx.body = "Password updated";
 });
 
 module.exports = router;
