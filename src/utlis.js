@@ -2,6 +2,10 @@ const jwt = require('jsonwebtoken');
 const config = require('./config');
 const { v4: uuid } = require('uuid');
 
+/**
+ * Possible user roles on the site
+ */
+const roles = ['tester', 'user', 'supporter', 'admin'];
 
 /**
  * @param {(string | undefined)[]} data - array of string to validate
@@ -131,5 +135,6 @@ module.exports = {
   sleep,
   generateOrderKey,
   getLocationIdFromLocation,
-  getLocationFromLocationId
+  getLocationFromLocationId,
+  roles
 }

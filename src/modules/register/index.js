@@ -3,7 +3,7 @@ const router = new Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('../../config');
-const { generateRegisterToken, validateRegister } = require('../../utlis');
+const { generateRegisterToken, validateRegister, roles } = require('../../utlis');
 
 /**
  * Register user
@@ -53,7 +53,6 @@ router.all('/', async (ctx) => {
 
 router.post('/add-random-token', async (ctx) => {
   const { secret, role } = ctx.request.body;
-  const roles = ['tester', 'user', 'admin'];
 
   if (secret != config.registerSecret) {
     ctx.body = 'Invalid secret string';
