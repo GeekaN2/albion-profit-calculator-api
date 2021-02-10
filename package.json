@@ -29,7 +29,9 @@
     "run-worker-prod": "node src/modules/worker/index.js",
     "nats": "node src/modules/nats",
     "fill-market-orders": "node src/scripts/fillMarketOrders.js",
-    "create-indexes": "node src/scripts/createIndexes.js"
+    "create-indexes": "node src/scripts/createIndexes.js",
+    "migrations:up": "migrate-mongo up",
+    "migrations:down": "migrate-mongo down"
   },
   "devDependencies": {
     "eslint": "^7.4.0",

@@ -28,8 +28,17 @@ $ npm run lint
 # create mongodb indexes
 $ yarn create-indexes
 
-# run migrations
-$ yarn migrations
+# fill db with market orders from the orders dump
+$ yarn fill-market-orders
+
+# install migrate-mongo
+$ npm install -g migrate-mongo
+
+# up migrations
+$ yarn migrations:up
+
+# down migrations
+$ yarn mgirations:down
 ```
 
 Don't forget to run mongodb.

@@ -9,26 +9,14 @@ const { generateRegisterToken, validateRegister, roles } = require('../../utlis'
  * Register user
  */
 router.all('/', async (ctx) => {
-  const { nickname, password, registerToken } = ctx.request.body;
+  const { nickname, password } = ctx.request.body;
 
-  if (!validateRegister(nickname, password, registerToken)) {
+  if (!validateRegister(nickname, password)) {
     ctx.status = 200;
     ctx.body = 'Incorrect data format';
 
     return;
   }
-
-  const token = await ctx.mongo.db('albion').collection('tokens').findOne({
-    token: registerToken
-  });
-
-  if (token === null) {
-    ctx.body = 'Bad register token';
-
-    return;
-  }
-
-  const decodedToken = jwt.verify(token.token, config.registerJwtSecret);
 
   const user = await ctx.mongo.db('albion').collection('users').findOne({
     nickname: nickname
@@ -39,10 +27,9 @@ router.all('/', async (ctx) => {
       const result = await ctx.mongo.db('albion').collection('users').insertOne({
         nickname: nickname,
         password: hash,
-        role: decodedToken.role,
+        role: 'user',
         dtCreated: new Date()
       });
-      const deletedToken = await ctx.mongo.db('albion').collection('tokens').deleteOne({ token: registerToken });
     });
 
     ctx.body = 'Registered successfully';
