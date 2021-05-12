@@ -47,12 +47,15 @@ router.get('/', async (ctx) => {
       }
     }
 
+    
+    const averageItemPrice = averageDataObject[order.ItemId].averagePrice;
+    
     // If the offer price is too high, i.e. more than the average price by 100 times, we discard it and take another one, if any
     if (order.AuctionType == 'offer' &&
       (normalizedData[orderKey].sellPriceMin == 0 ||
-        (averageDataObject[order.ItemId].averagePrice > 0 && normalizedData[orderKey].sellPriceMin > averageDataObject[order.ItemId].averagePrice * OVERPRICED_MULTIPLIER) ||
+        (averageItemPrice > 0 && normalizedData[orderKey].sellPriceMin > averageItemPrice * OVERPRICED_MULTIPLIER) ||
         (order.UnitPriceSilver < normalizedData[orderKey].sellPriceMin && normalizedData[orderKey].sellPriceMinDate - order.UpdatedAt <= 300 * 100) &&
-        !(averageDataObject[order.ItemId].averagePrice > 0 && order.UnitPriceSilver > averageDataObject[order.ItemId].averagePrice * OVERPRICED_MULTIPLIER))) {
+        !(averageItemPrice > 0 && order.UnitPriceSilver > averageItemPrice * OVERPRICED_MULTIPLIER))) {
       normalizedData[orderKey] = {
         ...normalizedData[orderKey],
         sellPriceMin: order.UnitPriceSilver,
@@ -60,7 +63,9 @@ router.get('/', async (ctx) => {
       }
     } else if (order.AuctionType == 'request' &&
       (normalizedData[orderKey].buyPriceMax == 0 ||
-        (order.UnitPriceSilver > normalizedData[orderKey].buyPriceMax && normalizedData[orderKey].buyPriceMaxDate - order.UpdatedAt <= 300 * 1000))) {
+        (averageItemPrice > 0 && normalizedData[orderKey].buyPriceMax > averageItemPrice * OVERPRICED_MULTIPLIER)
+        (order.UnitPriceSilver > normalizedData[orderKey].buyPriceMax && normalizedData[orderKey].buyPriceMaxDate - order.UpdatedAt <= 300 * 1000) ||
+        !(averageItemPrice > 0 && order.UnitPriceSilver > averageItemPrice * OVERPRICED_MULTIPLIER))) {
 
       normalizedData[orderKey] = {
         ...normalizedData[orderKey],
