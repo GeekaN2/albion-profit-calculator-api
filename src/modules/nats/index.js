@@ -8,6 +8,7 @@ const nc = NATS.connect('nats://public:thenewalbiondata@albion-online-data.com:4
 var collection;
 let quantityOfUpdatedOrders = 0;
 let quantityOfCreatedOrders = 0;
+let daysWhileOrderCanLive = 5;
 
 (async function () {
   const connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -51,8 +52,8 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
     if (itemInDB === null) {
       item.Expires = new Date(item.Expires);
 
-      if (item.Expires - Date.now() > 14 * day) {
-        item.Expires = new Date(Date.now() + 14 * day);
+      if (item.Expires - Date.now() > daysWhileOrderCanLive * day) {
+        item.Expires = new Date(Date.now() + daysWhileOrderCanLive * day);
       }
 
       await collection.insertOne({
@@ -74,8 +75,8 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
     } else {
       item.Expires = new Date(item.Expires);
 
-      if (item.Expires - Date.now() > 30 * day) {
-        item.Expires = new Date(Date.now() + 7 * day);
+      if (item.Expires - Date.now() > daysWhileOrderCanLive * day) {
+        item.Expires = new Date(Date.now() + daysWhileOrderCanLive * day);
       }
 
       await collection.updateOne({
