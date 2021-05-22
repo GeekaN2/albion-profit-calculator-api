@@ -8,6 +8,7 @@ const nc = NATS.connect('nats://public:thenewalbiondata@albion-online-data.com:4
 var collection;
 let quantityOfUpdatedOrders = 0;
 let quantityOfCreatedOrders = 0;
+let quantityOfFilteredOrders = 0;
 let daysWhileOrderCanLive = 7;
 
 let OrderIdFilter = {
@@ -44,8 +45,9 @@ const logInterval = setInterval(function () {
   console.log('1 minute past', new Date());
   console.log('Updated', quantityOfUpdatedOrders, 'orders');
   console.log('Created', quantityOfCreatedOrders, 'orders');
+  console.log('Filtered', quantityOfFilteredOrders, 'orders');
 
-  quantityOfCreatedOrders = quantityOfUpdatedOrders = 0;
+  quantityOfCreatedOrders = quantityOfUpdatedOrders = quantityOfFilteredOrders = 0;
 }, 60 * 1000);
 
 nc.subscribe('marketorders.deduped.bulk', async function (msg) {
@@ -78,6 +80,8 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
 
       // Do not insert order if it's id doesn't look like a real one
       if (!OrderIdFilter.isValidOrderId(item.Id)) {
+        quantityOfFilteredOrders++;
+
         continue;
       }
 
