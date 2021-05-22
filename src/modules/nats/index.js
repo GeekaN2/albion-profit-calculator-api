@@ -8,7 +8,27 @@ const nc = NATS.connect('nats://public:thenewalbiondata@albion-online-data.com:4
 var collection;
 let quantityOfUpdatedOrders = 0;
 let quantityOfCreatedOrders = 0;
-let daysWhileOrderCanLive = 5;
+let daysWhileOrderCanLive = 7;
+
+let OrderIdFilter = {
+  minBorderStart: 7e9,
+  maxBorderStart: 7e9 + 1e8,
+  startedDate: new Date("2021-05-22T22:24:21.436Z"),
+  increasingPerDate: 5e6,
+  increasingOfIncreasing: 1e5,
+
+  get maxBorder() {
+    const msecondInDay = 86400 * 1000;
+    const daysPassedSinceFirstDay = Math.floor((new Date() - this.startedDate) / msecondInDay);
+    const orderIdIncreasing = (this.increasingPerDate +  this.increasingOfIncreasing * daysPassedSinceFirstDay / 2) * (daysPassedSinceFirstDay + 1);
+
+    return this.minBorderStart + orderIdIncreasing;
+  },
+
+  isValidOrderId(orderId) {
+    return orderId >= this.minBorderStart && orderId <= this.maxBorder;
+  }
+};
 
 (async function () {
   const connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -54,6 +74,11 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
 
       if (item.Expires - Date.now() > daysWhileOrderCanLive * day) {
         item.Expires = new Date(Date.now() + daysWhileOrderCanLive * day);
+      }
+
+      // Do not insert order if it's id doesn't look like a real one
+      if (!OrderIdFilter.isValidOrderId(item.Id)) {
+        continue;
       }
 
       await collection.insertOne({
