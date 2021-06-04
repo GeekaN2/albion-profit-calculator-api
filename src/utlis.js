@@ -1,6 +1,11 @@
 const jwt = require('jsonwebtoken');
 const config = require('./config');
+const { v4: uuid } = require('uuid');
 
+/**
+ * Possible user roles on the site
+ */
+const roles = ['tester', 'user', 'supporter', 'admin'];
 
 /**
  * @param {(string | undefined)[]} data - array of string to validate
@@ -9,6 +14,28 @@ function validateRegister(...data) {
   return data.every((elem) => {
     return elem != undefined && elem.trim() != '';
   });
+}
+
+/**
+ * Generate refresh token
+ * 
+ * @param {string} role 
+ */
+function generateRefreshToken(userId) {
+  return {
+    userId: userId, 
+    token: uuid(),
+    dtCreated: new Date()
+  }
+}
+
+/**
+ * Generate acess token
+ * 
+ * @param {string} userId 
+ */
+function generateAccessToken(userId) {
+  return jwt.sign({ id: userId }, config.secret, { expiresIn: '30min' });
 }
 
 /**
@@ -101,10 +128,13 @@ function getLocationFromLocationId(locationId) {
 
 module.exports = {
   generateRegisterToken,
+  generateRefreshToken,
+  generateAccessToken,
   validateRegister,
   isAvailableLocation,
   sleep,
   generateOrderKey,
   getLocationIdFromLocation,
-  getLocationFromLocationId
+  getLocationFromLocationId,
+  roles
 }

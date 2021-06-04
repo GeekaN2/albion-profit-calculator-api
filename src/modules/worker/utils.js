@@ -105,7 +105,7 @@ function normalizeItem(oldItem, newItem) {
     return newItem;
   }
 
-  return oldItem.price > newItem.price ? oldItem: newItem;
+  return oldItem.normalizedPrice > newItem.normalizedPrice ? oldItem: newItem;
 }
 
 /**
@@ -117,19 +117,15 @@ function normalizedPriceAndDate(item) {
   const previousDay = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   const sellPriceRespone = {
-    itemId: item.itemId,
-    quality: item.quality,
-    location: item.location,
-    price: item.sellPriceMin,
+    ...item,
+    normalizedPrice: item.sellPriceMin,
     date: item.sellPriceMinDate,
     marketFee: 4.5
   }
 
   const buyPriceResponse = {
-    itemId: item.itemId,
-    quality: item.quality,
-    location: item.location,
-    price: item.buyPriceMax,
+    ...item,
+    normalizedPrice: item.buyPriceMax,
     date: item.buyPriceMaxDate,
     marketFee: 3
   }

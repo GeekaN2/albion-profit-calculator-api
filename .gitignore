@@ -3,3 +3,6 @@
 
 # env variables
 .env
+
+# migrate-mongo conifg
+migrate-mongo-config.js

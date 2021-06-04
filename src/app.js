@@ -14,6 +14,8 @@ const authModule = require('./modules/auth');
 const averageDataModule = require('./modules/average_data');
 const dataModule = require('./modules/data');
 const transportationsModule = require('./modules/transportations');
+const adminModule = require('./modules/admin');
+const utilsModule = require('./modules/utils');
 
 function createApp() {
   const app = new Koa();
@@ -28,6 +30,7 @@ function createApp() {
   router.use('/api/average_data', averageDataModule.routes());
   router.use('/api/data', dataModule.routes());
   router.use('/api/transportations', transportationsModule.routes());
+  router.use('/api/utils', utilsModule.routes());
 
   router.use(
     jwtMiddleware({
@@ -35,6 +38,7 @@ function createApp() {
     })
   );
   router.use('/api/user', userModule.routes());
+  router.use('/api/admin', adminModule.routes());
   
   app.use(koaBody());
   app.use(cors());

@@ -34,8 +34,8 @@ let runAtMidnight = setTimeout(async function tickMidnight() {
 /**
  * Run transportations worker every 5 minutes
  */
-let runEvery5Minutes = setTimeout(async function tick5Minutes() {
+let runEvery5Minutes = setTimeout(async function tick15Minutes() {
   await runWorker('./src/modules/worker/transportationsWorker.js').catch(err => console.log('Something went wrong in transportaions worker', err));
 
-  runEvery5Minutes = setTimeout(tick5Minutes, 5 * 60 * 1000);
+  runEvery5Minutes = setTimeout(tick15Minutes, 15 * 60 * 1000);
 }, 0);

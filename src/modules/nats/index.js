@@ -1,13 +1,13 @@
 const NATS = require('nats');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
-const items = require('../../static/items.json');
 const { getLocationFromLocationId, isAvailableLocation } = require('../../utlis');
 
-const nc = NATS.connect('nats://public:thenewalbiondata@albion-online-data.com:4222');
+const nc = NATS.connect('nats://public:thenewalbiondata@138.68.83.18:4222');
 var collection;
 let quantityOfUpdatedOrders = 0;
 let quantityOfCreatedOrders = 0;
+let daysWhileOrderCanLive = 14;
 
 (async function () {
   const connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -40,9 +40,8 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
 
   for (let item of response) {
     const tier = item.ItemTypeId.match(/T\d/);
-    const idWithoutTier = item.ItemTypeId.replace(/T\d/, '');
 
-    if (!items.some(name => idWithoutTier.includes(name)) || tier < 4 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
+    if (tier < 2 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
       continue;
     }
 
@@ -51,8 +50,8 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
     if (itemInDB === null) {
       item.Expires = new Date(item.Expires);
 
-      if (item.Expires - Date.now() > 7 * day) {
-        item.Expires = new Date(Date.now() + 7 * day);
+      if (item.Expires - Date.now() > daysWhileOrderCanLive * day) {
+        item.Expires = new Date(Date.now() + daysWhileOrderCanLive * day);
       }
 
       await collection.insertOne({
@@ -74,8 +73,8 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
     } else {
       item.Expires = new Date(item.Expires);
 
-      if (item.Expires - Date.now() > 30 * day) {
-        item.Expires = new Date(Date.now() + 7 * day);
+      if (item.Expires - Date.now() > daysWhileOrderCanLive * day) {
+        item.Expires = new Date(Date.now() + daysWhileOrderCanLive * day);
       }
 
       await collection.updateOne({
@@ -88,7 +87,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
         }
       });
 
-      //console.log('Updated', item.ItemTypeId, 'in', getLocationFromLocationId(item.LocationId), 'quality', item.QualityLevel);
+      // console.log('Updated', item.ItemTypeId, 'in', getLocationFromLocationId(item.LocationId), 'quality', item.QualityLevel);
 
       quantityOfUpdatedOrders++;
     }

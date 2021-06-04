@@ -80,29 +80,50 @@ async function runWorker() {
   await worker.start();
 
   for (let baseItemName of items) {
-    // TODO: replace createArrayOfAllItemNames function
-    // need different algorithms for items
     const allItems = createArrayOfAllNames(`T4${baseItemName}`);
-    const itemsData = await axios.get(`${config.apiUrl}/data?items=${allItems.join(',')}&locations=${cities.join(',')}&qualities=${qualities.join(',')}`);
+    let itemsData = await axios.get(`${config.apiUrl}/data?items=${allItems.join(',')}&locations=${cities.join(',')}&qualities=${qualities.join(',')}`);
+    let averageData = await axios.get(`${config.apiUrl}/average_data?items=${allItems.join(',')}&locations=${cities.join(',')}`);
     
+    itemsData = itemsData.data;
+    averageData = averageData.data.reduce((accumulator, item) => {
+      if (!accumulator[item.location]) {
+        accumulator[item.location] = {};
+      }
+
+      accumulator[item.location][item.itemName] = item;
+
+      return accumulator
+    }, {})
+
     let normalizedItems = {};
     cities.forEach(city => normalizedItems[city] = {});
 
-    itemsData.data.forEach((item) => {
+    itemsData = itemsData.map((item) => {
+      return {
+        ...item,
+        averagePrice: averageData[item.location][item.itemId].averagePrice,
+        averageItems: averageData[item.location][item.itemId].averageItems
+      }
+    })
+
+    itemsData.forEach((item) => {
       if (!normalizedItems[item.location][item.itemId]) {
         normalizedItems[item.location][item.itemId] = {
           itemId: item.itemId,
           quality: item.quality,
-          price: 0,
+          normalizedPrice: 0,
+          sellPriceMin: 0,
           date: new Date(0),
           location: item.location,
-          marketFee: 3
+          marketFee: 3,
+          averagePrice: item.averagePrice,
+          averageItems: item.averageItems
         };
       }
 
-      const currentPrice = normalizedItems[item.location][item.itemId];
-      const normalizedNewPrice = normalizedPriceAndDate(item);
-      const newPrice = normalizeItem(currentPrice, normalizedNewPrice);
+      const currentItem = normalizedItems[item.location][item.itemId];
+      const normalizedPrice = normalizedPriceAndDate(item);
+      const newPrice = normalizeItem(currentItem, normalizedPrice);
 
       normalizedItems[item.location][item.itemId] = newPrice;
     });

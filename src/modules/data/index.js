@@ -1,12 +1,20 @@
 const Router = require('koa-router');
 const router = new Router();
+const config = require('../../config');
+const axios = require('axios');
 const { isAvailableLocation, generateOrderKey, getLocationIdFromLocation, getLocationFromLocationId } = require('../../utlis');
+
+const OVERPRICED_MULTIPLIER = 100;
 
 /**
  * Returns data for requested items
  */
 router.get('/', async (ctx) => {
   let { items = '', locations = '', qualities = '1' } = ctx.request.query;
+
+  const averageData = (await axios.get(`${config.apiUrl}/average_data?items=${items}&locations=${locations}`)).data;
+  let averageDataObject = {};
+  averageData.forEach(item => averageDataObject[item.itemName] = item);
 
   items = items.split(',').filter(item => item.trim().length > 0) || [];
   locations = locations.split(',').filter(location => isAvailableLocation(location)) || [];
@@ -21,6 +29,8 @@ router.get('/', async (ctx) => {
   }, { projection: { _id: 0 } });
 
   const normalizedData = {};
+
+  // console.log(averageDataObject);
 
   await cursor.forEach(function (order) {
     const orderKey = generateOrderKey(order.ItemId, order.LocationId, order.QualityLevel);
@@ -37,9 +47,15 @@ router.get('/', async (ctx) => {
       }
     }
 
+    
+    const averageItemPrice = averageDataObject[order.ItemId].averagePrice;
+
+    // If the offer price is too high, i.e. more than the average price by 100 times, we discard it and take another one, if any
     if (order.AuctionType == 'offer' &&
       (normalizedData[orderKey].sellPriceMin == 0 ||
-        (order.UnitPriceSilver < normalizedData[orderKey].sellPriceMin && normalizedData[orderKey].sellPriceMinDate - order.UpdatedAt <= 300 * 1000))) {
+        (averageItemPrice > 0 && normalizedData[orderKey].sellPriceMin > averageItemPrice * OVERPRICED_MULTIPLIER) ||
+        (order.UnitPriceSilver < normalizedData[orderKey].sellPriceMin && normalizedData[orderKey].sellPriceMinDate - order.UpdatedAt <= 300 * 100) &&
+        !(averageItemPrice > 0 && order.UnitPriceSilver > averageItemPrice * OVERPRICED_MULTIPLIER))) {
       normalizedData[orderKey] = {
         ...normalizedData[orderKey],
         sellPriceMin: order.UnitPriceSilver,
@@ -47,7 +63,9 @@ router.get('/', async (ctx) => {
       }
     } else if (order.AuctionType == 'request' &&
       (normalizedData[orderKey].buyPriceMax == 0 ||
-        (order.UnitPriceSilver > normalizedData[orderKey].buyPriceMax && normalizedData[orderKey].buyPriceMaxDate - order.UpdatedAt <= 300 * 1000))) {
+        (averageItemPrice > 0 && normalizedData[orderKey].buyPriceMax > averageItemPrice * OVERPRICED_MULTIPLIER) ||
+        (order.UnitPriceSilver > normalizedData[orderKey].buyPriceMax && normalizedData[orderKey].buyPriceMaxDate - order.UpdatedAt <= 300 * 1000) ||
+        !(averageItemPrice > 0 && order.UnitPriceSilver > averageItemPrice * OVERPRICED_MULTIPLIER))) {
 
       normalizedData[orderKey] = {
         ...normalizedData[orderKey],
