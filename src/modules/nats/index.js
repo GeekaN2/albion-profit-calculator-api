@@ -1,7 +1,6 @@
 const NATS = require('nats');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
-const items = require('../../static/items.json');
 const { getLocationFromLocationId, isAvailableLocation } = require('../../utlis');
 
 const nc = NATS.connect('nats://public:thenewalbiondata@138.68.83.18:4222');
@@ -41,9 +40,8 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
 
   for (let item of response) {
     const tier = item.ItemTypeId.match(/T\d/);
-    const idWithoutTier = item.ItemTypeId.replace(/T\d/, '');
 
-    if (!items.some(name => idWithoutTier.includes(name)) || tier < 3 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
+    if (tier < 2 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
       continue;
     }
 
