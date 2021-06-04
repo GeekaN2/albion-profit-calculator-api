@@ -41,7 +41,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
   for (let item of response) {
     const tier = item.ItemTypeId.match(/T\d/);
 
-    if (tier < 2 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
+    if (!isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
       continue;
     }
 
