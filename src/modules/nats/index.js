@@ -3,7 +3,7 @@ const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
 const { getLocationFromLocationId, isAvailableLocation } = require('../../utlis');
 
-const nc = NATS.connect('nats://public:thenewalbiondata@138.68.83.18:4222');
+const nc = NATS.connect('nats://public:thenewalbiondata@albion-online-data.com:4222')
 var collection;
 let quantityOfUpdatedOrders = 0;
 let quantityOfCreatedOrders = 0;
