@@ -1,6 +1,8 @@
-const { workerData, parentPort, getEnvironmentData } = require('worker_threads')
+const { getEnvironmentData } = require('worker_threads')
 const { sleep, getDbByServerId } = require('../../utlis');
 const { createArrayOfAllItems } = require('./utils');
+const { sleep } = require('../../utlis');
+const { createArrayOfAllItems, createArrayOfAllFoodAndPotionsItems } = require('./utils');
 const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
@@ -151,6 +153,7 @@ async function runWorker() {
 
   for (let baseItemName of allItems) {
     const itemsWithTierAndSubtier = createArrayOfAllItems(`T4${baseItemName}`);
+    itemsWithTierAndSubtier.push(...createArrayOfAllFoodAndPotionsItems())
 
     for (let item of itemsWithTierAndSubtier) {
       const collectedData = await worker.collectDataForOneItem(item);

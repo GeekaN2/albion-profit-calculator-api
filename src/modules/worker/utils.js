@@ -1,3 +1,5 @@
+const foodAndPotionsItems = require('../../static/foodAndPotionsItems.json');
+
 /**
  * Create array with all tiers and subtiers
  * 
@@ -32,6 +34,33 @@ function createArrayOfAllItems(itemName) {
       allNames.push(`T${tier}` + itemName.slice(2) + (subtier != 0 ? `@${subtier}` : ''));
     }
   }
+
+  return allNames;
+}
+
+/**
+ * Get tiers from food and potions and add subtiers
+ */
+function createArrayOfAllFoodAndPotionsItems() {
+  const allNames = [];
+
+  foodAndPotionsItems.forEach((itemName) => {
+    const tier = Number(itemName.slice(1, 2));
+
+    if (itemName.includes('POTION') && tier >= 4) {
+      allNames.push(...generateSubtiersUpTo(itemName, 1));
+
+      return;
+    }
+
+    if (itemName.includes('MEAL')) {
+      allNames.push(...generateSubtiersUpTo(itemName, 3));
+
+      return;
+    }
+
+    allNames.push(itemName);
+  });
 
   return allNames;
 }
@@ -163,6 +192,7 @@ module.exports = {
   createArrayOfAllItems,
   createArrayOfAllArtifacts,
   createArrayOfAllJournals,
+  createArrayOfAllFoodAndPotionsItems,
   isArtifactItem,
   isJournal,
   normalizedPriceAndDate,
