@@ -39,6 +39,22 @@ function createArrayOfAllItems(itemName) {
 }
 
 /**
+ * Small function to help in subtier names generation
+ * 
+ * @param baseName - item name without a subtier
+ * @param highestSubtier - bound of subtiers
+ */
+ const generateSubtiersUpTo = (baseName, highestSubtier) => {
+  let names = [];
+
+  for (let subtier = 0; subtier <= highestSubtier; subtier++) {
+    names.push(`${baseName}${subtier > 0 ? '@' + subtier : ''}`);
+  }
+
+  return names;
+}
+
+/**
  * Get tiers from food and potions and add subtiers
  */
 function createArrayOfAllFoodAndPotionsItems() {
@@ -196,5 +212,6 @@ module.exports = {
   isArtifactItem,
   isJournal,
   normalizedPriceAndDate,
-  normalizeItem
+  normalizeItem,
+  generateSubtiersUpTo,
 }
