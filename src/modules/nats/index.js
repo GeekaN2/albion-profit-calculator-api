@@ -3,7 +3,7 @@ const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
 const { getLocationFromLocationId, isAvailableLocation } = require('../../utlis');
 
-const nc = NATS.connect('nats://public:thenewalbiondata@138.68.83.18:4222');
+const nc = NATS.connect('nats://public:thenewalbiondata@albion-online-data.com:4222')
 var collection;
 let quantityOfUpdatedOrders = 0;
 let quantityOfCreatedOrders = 0;
@@ -41,7 +41,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
   for (let item of response) {
     const tier = item.ItemTypeId.match(/T\d/);
 
-    if (tier < 2 || !isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
+    if (!isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
       continue;
     }
 
