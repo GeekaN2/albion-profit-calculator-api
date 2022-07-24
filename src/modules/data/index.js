@@ -4,7 +4,7 @@ const config = require('../../config');
 const axios = require('axios');
 const { isAvailableLocation, generateOrderKey, getLocationIdFromLocation, getLocationFromLocationId, getDbByServerId } = require('../../utlis');
 
-const OVERPRICED_MULTIPLIER = 100;
+const OVERPRICED_MULTIPLIER = 5;
 
 /**
  * Returns data for requested items

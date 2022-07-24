@@ -143,11 +143,18 @@ function createArrayOfAllJournals(journalName) {
  */
 function normalizeItem(oldItem, newItem) {
   const previousDay = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const fiveMinutes = 5 * 60 * 1000;
 
   if (new Date(oldItem.date) >= previousDay && new Date(newItem.date) <= previousDay) {
     return oldItem;
   } else if (new Date(oldItem.date) <= previousDay && new Date(newItem.date) >= previousDay) {
     return newItem;
+  }
+
+  if (new Date(newItem.date).valueOf() >= new Date(oldItem.date).valueOf() + fiveMinutes) {
+    return newItem;
+  } else if (new Date(oldItem.date).valueOf() >= new Date(newItem.date).valueOf() + fiveMinutes) {
+    return oldItem;
   }
 
   return oldItem.normalizedPrice > newItem.normalizedPrice ? oldItem: newItem;
