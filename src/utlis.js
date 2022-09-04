@@ -95,13 +95,13 @@ function generateOrderKey(itemId, locationId, qualityLevel) {
  */
 function getLocationIdFromLocation(location) {
   const codes = {
-    'Thetford': 7,
-    'Lymhurst': 1002,
-    'Bridgewatch': 2004,
-    'Black Market': 3003,
-    'Caerleon': 3005,
-    'Martlock': 3008,
-    'Fort Sterling': 4002
+    'Thetford': ['7', '0301'],
+    'Lymhurst': ['1002', '1301'],
+    'Bridgewatch': ['2004', '2301'],
+    'Black Market': ['3003'],
+    'Caerleon': ['3005'],
+    'Martlock': ['3008', '3301'],
+    'Fort Sterling': ['4002', '4301']
   }
 
   return codes[location];
@@ -115,13 +115,20 @@ function getLocationIdFromLocation(location) {
  */
 function getLocationFromLocationId(locationId) {
   const cityCodes = {
-    7: 'Thetford',
-    1002: 'Lymhurst',
-    2004: 'Bridgewatch',
-    3003: 'Black Market',
-    3005: 'Caerleon',
-    3008: 'Martlock',
-    4002: 'Fort Sterling',
+    '7': 'Thetford',
+    '1002': 'Lymhurst',
+    '2004': 'Bridgewatch',
+    '3003': 'Black Market',
+    '3005': 'Caerleon',
+    '3008': 'Martlock',
+    '4002': 'Fort Sterling',
+
+    // Market on portals in the Black zones
+    '0301': 'Thetford',
+    '1301': 'Lymhurst',
+    '2301': 'Bridgewatch',
+    '3301': 'Martlock',
+    '4301': 'Fort Sterling',
   }
   
   return cityCodes[locationId]

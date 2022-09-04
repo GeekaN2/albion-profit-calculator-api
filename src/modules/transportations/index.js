@@ -216,7 +216,13 @@ router.get('/sort', async (ctx) => {
     }));
 
     const getFromItemPrice = (itemFromTo) => {
-      
+      return itemFromTo.from.sellPriceMin;
+    }
+
+    const getToItemPrice = (itemFromTo) => {
+      const feePercentage = 3.5;
+
+      return itemFromTo.to.sellPriceMin * (100 - feePercentage) / 100;
     }
 
     /**
@@ -243,7 +249,7 @@ router.get('/sort', async (ctx) => {
         return -Infinity;
       }
 
-      return itemFromTo.to.sellPriceMin - itemFromTo.from.sellPriceMin;
+      return getToItemPrice(itemFromTo) - getFromItemPrice(itemFromTo);
     }
 
     const getPercentageProfit = (itemFromTo) => {
@@ -251,7 +257,7 @@ router.get('/sort', async (ctx) => {
         return -Infinity;
       }
 
-      return (getRealProfit(itemFromTo) / itemFromTo.from.sellPriceMin) * 100;
+      return (getRealProfit(itemFromTo) / getFromItemPrice(itemFromTo)) * 100;
     }
 
     const getProfitVolume = (itemFromTo) => {

@@ -56,7 +56,7 @@ function createArrayOfAllNames(itemName) {
 function createArrayOfAllArtifactsFromArtifact(artifactName) {
   let allNames = [];
 
-  if (artifactName.includes('ROYAL')) {
+  if (artifactName.includes('QUESTITEM_TOKEN_ROYAL')) {
     for (let tier = 4; tier <= 8; tier++) {
       allNames.push(`QUESTITEM_TOKEN_ROYAL_T${tier}`);
     }
@@ -151,7 +151,7 @@ function createArrayOfAllFoodAndPotionsItems() {
  * @param itemName - item name: T4_HEAD_CLOTH_HELL etc.
  */
 function isArtifactItem(itemName = '') {
-  const artifacts = ['UNDEAD', 'KEEPER', 'HELL', 'MORGANA', 'AVALON', 'ROYAL', 'INSIGHT'];
+  const artifacts = ['UNDEAD', 'KEEPER', 'HELL', 'MORGANA', 'AVALON', 'QUESTITEM_TOKEN_ROYAL', 'INSIGHT'];
 
   return artifacts.some(artefact => itemName.includes(artefact));
 }

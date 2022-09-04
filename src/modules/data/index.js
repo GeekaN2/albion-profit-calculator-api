@@ -18,7 +18,7 @@ router.get('/', async (ctx) => {
 
   items = items.split(',').filter(item => item.trim().length > 0) || [];
   locations = locations.split(',').filter(location => isAvailableLocation(location)) || [];
-  locations = locations.map(location => getLocationIdFromLocation(location));
+  locations = locations.map(location => getLocationIdFromLocation(location)).flat();
   qualities = qualities.split(',').map(quality => Number(quality)) || [];
 
   let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('market_orders').find({
