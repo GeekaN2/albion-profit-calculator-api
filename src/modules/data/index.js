@@ -29,16 +29,18 @@ router.get('/', async (ctx) => {
   }, { projection: { _id: 0 } });
 
   const normalizedData = {};
+  
 
   // console.log(averageDataObject);
 
   await cursor.forEach(function (order) {
-    const orderKey = generateOrderKey(order.ItemId, order.LocationId, order.QualityLevel);
+    const location = getLocationFromLocationId(order.LocationId);
+    const orderKey = generateOrderKey(order.ItemId, location, order.QualityLevel);
 
     if (!normalizedData[orderKey]) {
       normalizedData[orderKey] = {
         itemId: order.ItemId,
-        location: getLocationFromLocationId(order.LocationId),
+        location: location,
         quality: order.QualityLevel,
         sellPriceMin: 0,
         sellPriceMinDate: "1970-01-01T00:00:00.000Z",
@@ -78,8 +80,9 @@ router.get('/', async (ctx) => {
   const response = [];
 
   for (let item of items) {
-    for (let location of locations) {
+    for (let locationId of locations) {
       for (let quality of qualities) {
+        const location = getLocationFromLocationId(locationId);
         const orderKey = generateOrderKey(item, location, quality);
 
         if (normalizedData[orderKey]) {
@@ -87,7 +90,7 @@ router.get('/', async (ctx) => {
         } else {
           response.push({
             itemId: item,
-            location: getLocationFromLocationId(location),
+            location: location,
             quality: quality,
             sellPriceMin: 0,
             sellPriceMinDate: "1970-01-01T00:00:00.000Z",
