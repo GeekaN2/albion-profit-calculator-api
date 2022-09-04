@@ -131,7 +131,7 @@ function getLocationFromLocationId(locationId) {
     '4301': 'Fort Sterling',
   }
   
-  return cityCodes[locationId]
+  return cityCodes[String(locationId)];
 }
 
 /**
