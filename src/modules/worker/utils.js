@@ -236,14 +236,14 @@ function normalizedPriceAndDate(item) {
     ...item,
     normalizedPrice: item.sellPriceMin,
     date: item.sellPriceMinDate,
-    marketFee: 4.5
+    marketFee: 6.5
   }
 
   const buyPriceResponse = {
     ...item,
     normalizedPrice: item.buyPriceMax,
     date: item.buyPriceMaxDate,
-    marketFee: 3
+    marketFee: 4
   }
 
   if (item.sellPriceMin != 0 && item.buyPriceMax == 0) {

@@ -39,7 +39,7 @@ router.get('/', async (ctx) => {
           itemId,
           location,
           date: new Date(0),
-          marketFee: 3,
+          marketFee: 4,
           price: 0,
           quality: 1
         }
@@ -220,9 +220,9 @@ router.get('/sort', async (ctx) => {
     }
 
     const getToItemPrice = (itemFromTo) => {
-      const feePercentage = 3.5;
+      const marketFee = 6.5;
 
-      return itemFromTo.to.sellPriceMin * (100 - feePercentage) / 100;
+      return itemFromTo.to.sellPriceMin * (100 - marketFee) / 100;
     }
 
     /**

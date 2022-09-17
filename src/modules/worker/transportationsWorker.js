@@ -111,7 +111,7 @@ async function processBaseItemName(baseItemName, worker) {
         sellPriceMin: 0,
         date: new Date(0),
         location: item.location,
-        marketFee: 3,
+        marketFee: 4,
         averagePrice: item.averagePrice,
         averageItems: item.averageItems
       };
