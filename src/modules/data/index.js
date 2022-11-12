@@ -79,10 +79,11 @@ router.get('/', async (ctx) => {
 
   const response = [];
 
+  const locationNames = [...new Set(locations.map(getLocationFromLocationId))];
+
   for (let item of items) {
-    for (let locationId of locations) {
+    for (let location of locationNames) {
       for (let quality of qualities) {
-        const location = getLocationFromLocationId(locationId);
         const orderKey = generateOrderKey(item, location, quality);
 
         if (normalizedData[orderKey]) {
