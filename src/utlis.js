@@ -101,7 +101,8 @@ function getLocationIdFromLocation(location) {
     'Black Market': ['3003'],
     'Caerleon': ['3005'],
     'Martlock': ['3008', '3301'],
-    'Fort Sterling': ['4002', '4301']
+    'Fort Sterling': ['4002', '4301'],
+    'Brecilien': ['5003'],
   }
 
   return codes[location];
@@ -122,6 +123,7 @@ function getLocationFromLocationId(locationId) {
     '3005': 'Caerleon',
     '3008': 'Martlock',
     '4002': 'Fort Sterling',
+    '5003': 'Brecilien',
 
     // Market on portals in the Black zones
     '0301': 'Thetford',

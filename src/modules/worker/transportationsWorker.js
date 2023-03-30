@@ -15,6 +15,7 @@ const cities = [
   'Lymhurst',
   'Martlock',
   'Thetford',
+  'Brecilien',
 ]
 
 const qualities = [1, 2, 3];
