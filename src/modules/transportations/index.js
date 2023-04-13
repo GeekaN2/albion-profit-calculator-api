@@ -39,7 +39,7 @@ router.get('/', async (ctx) => {
           itemId,
           location,
           date: new Date(0),
-          marketFee: 3,
+          marketFee: 4,
           price: 0,
           quality: 1
         }
@@ -98,7 +98,7 @@ router.get('/analyze', async (ctx) => {
     const profit = itemTo.normalizedPrice * (1 - itemTo.marketFee / 100) - itemFrom.sellPriceMin;
     const percentageProfit = profit / itemFrom.sellPriceMin * 100;
     const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
-    
+
     // test new param
     const dateStat = (Number(new Date(itemFrom.date)) + Number(new Date(itemTo.date)) - 2 * dayAgo) / 100000;
     const secondDateStat = (Number(new Date(itemFrom.date)) - dayAgo) * (Number(new Date(itemTo.date)) - dayAgo) / (100000 ** 2);
@@ -150,5 +150,152 @@ router.get('/analyze', async (ctx) => {
 
   ctx.body = response;
 })
+
+/**
+ * Grouping by [Location][ItemId] format
+ */
+router.get('/transportations-data', async (ctx) => {
+  const {
+    from = 'Caerleon',
+    to = 'Caerleon',
+  } = ctx.request.query;
+
+  let cursor = await ctx.mongo.db('albion').collection('normalized_prices').find(
+    {
+      location: { $in: [from, to] }
+    }, {
+    projection: { _id: 0 }
+  });
+
+  let groupedItemsByLocation = {};
+
+  await cursor.forEach(item => {
+    if (!groupedItemsByLocation[item.location]) {
+      groupedItemsByLocation[item.location] = {};
+    }
+
+    groupedItemsByLocation[item.location][item.itemId] = item;
+  });
+
+  ctx.body = groupedItemsByLocation;
+})
+
+/**
+ * Get cashed sorted data for 2 cities
+ */
+router.get('/sort', async (ctx) => {
+  let {
+    skip = 0,
+    count = 20,
+    from = 'Caerleon',
+    to = 'Caerleon',
+    sort = 'BY_LAST_TIME_CHECKED,BY_PERCENTAGE_PROFIT',
+  } = ctx.request.query;
+
+  try {
+    const sortings = ['BY_PERCENTAGE_PROFIT', 'BY_PROFIT', 'BY_LAST_TIME_CHECKED', 'BY_MOUNT_PROFIT', 'BY_PROFIT_VOLUME'];
+
+    sort = sort.split(',').filter(userSort => sortings.includes(userSort));
+  
+    const groupedItemsByLocation = (await axios.get(`${config.apiUrl}/transportations/transportations-data?from=${from}&to=${to}`)).data;
+
+    skip = Number(skip) || 0;
+    count = Math.min(Number(count) || 0, 200);
+
+    const isOutdated = (date) => {
+      const oneDayBefore = new Date().valueOf() - 24 * 60 * 60 * 1000;
+
+      return new Date(date).valueOf() <= oneDayBefore;
+    }
+
+    const itemIds = Object.keys(groupedItemsByLocation[from]);
+
+    const groupedItemsFromTo = itemIds.map(itemId => ({
+      from: groupedItemsByLocation[from][itemId],
+      to: groupedItemsByLocation[to][itemId],
+    }));
+
+    const getFromItemPrice = (itemFromTo) => {
+      return itemFromTo.from.sellPriceMin;
+    }
+
+    const getToItemPrice = (itemFromTo) => {
+      const marketFee = 6.5;
+
+      return itemFromTo.to.sellPriceMin * (100 - marketFee) / 100;
+    }
+
+    /**
+     * ItemFrom price is zero. Means we can't calculate profit properly
+     */
+    const isNotValidTransportation = (itemFromTo) => {
+      return itemFromTo.from.sellPriceMin === 0;
+    }
+    
+    /**
+     * For each order that is not outdated, we add one
+     * More means better
+     */
+    const getOudationValue = (itemFromTo) => {
+      if (isNotValidTransportation(itemFromTo)) {
+        return -Infinity;
+      }
+
+      return !isOutdated(itemFromTo.from.sellPriceMinDate) + !isOutdated(itemFromTo.to.sellPriceMinDate);
+    }
+
+    const getRealProfit = (itemFromTo) => {
+      if (isNotValidTransportation(itemFromTo)) {
+        return -Infinity;
+      }
+
+      return getToItemPrice(itemFromTo) - getFromItemPrice(itemFromTo);
+    }
+
+    const getPercentageProfit = (itemFromTo) => {
+      if (isNotValidTransportation(itemFromTo)) {
+        return -Infinity;
+      }
+
+      return (getRealProfit(itemFromTo) / getFromItemPrice(itemFromTo)) * 100;
+    }
+
+    const getProfitVolume = (itemFromTo) => {
+      if (isNotValidTransportation(itemFromTo)) {
+        return -Infinity;
+      }
+
+      return (getRealProfit(itemFromTo) * itemFromTo.to.averageItems);
+    }
+
+    groupedItemsFromTo.sort((items1, items2) => {
+      if (sort.includes('BY_LAST_TIME_CHECKED')) {
+        if (getOudationValue(items1) < getOudationValue(items2)) {
+          return 1;
+        } else if (getOudationValue(items1) > getOudationValue(items2)) {
+          return -1;
+        }
+      }
+
+      if (sort.includes('BY_PERCENTAGE_PROFIT')) {
+        return getPercentageProfit(items2) - getPercentageProfit(items1);
+      }
+
+      if (sort.includes('BY_PROFIT')) {
+        return getRealProfit(items2) - getRealProfit(items1);
+      }
+
+      if (sort.includes('BY_PROFIT_VOLUME')) {
+        return getProfitVolume(items2) - getProfitVolume(items1);
+      }
+
+      return 0;
+    });
+
+    ctx.body = groupedItemsFromTo.slice(skip, count + skip);
+  } catch (err) {
+    console.info(err);
+  }
+});
 
 module.exports = router;

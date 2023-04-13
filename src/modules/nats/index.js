@@ -62,7 +62,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
       await collection.insertOne({
         OrderId: item.Id,
         ItemId: item.ItemTypeId,
-        LocationId: item.LocationId,
+        LocationId: String(item.LocationId),
         QualityLevel: item.QualityLevel,
         UnitPriceSilver: item.UnitPriceSilver,
         Amount: item.Amount,
