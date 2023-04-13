@@ -143,7 +143,7 @@ function getServers() {
   return servers;
 }
 
-function getServerById(serverId = 'aod_west') {  
+function getServerById(serverId = 'apc_east') {  
   return getServers().find(({ id }) => serverId === id);
 }
 
@@ -151,7 +151,7 @@ function getServerIds() {
   return getServers().map(({ id }) => id);
 }
 
-function getDbByServerId(serverId = 'aod_west') {
+function getDbByServerId(serverId = 'apc_east') {
   return getServerById(serverId).id;
 }
 

@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const axios = require('axios');
 const router = new Router();
 const config = require('../../config');
-const { isAvailableLocation, generateOrderKey, getLocationFromLocationId, getDbByServerId } = require('../../utlis');
+const { isAvailableLocation, getDbByServerId } = require('../../utlis');
 
 /**
  * Returns the best routes between all locations for one item 
@@ -65,7 +65,7 @@ router.get('/analyze', async (ctx) => {
 
   skip = Number(skip) || 0;
   count = Math.min(Number(count) || 0, 200);
-  useHeuristicSort = useHeuristicSort === 'true'
+  useHeuristicSort = useHeuristicSort === 'true';
 
   let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('normalized_prices').find(
     {
@@ -158,9 +158,10 @@ router.get('/transportations-data', async (ctx) => {
   const {
     from = 'Caerleon',
     to = 'Caerleon',
+    serverId,
   } = ctx.request.query;
 
-  let cursor = await ctx.mongo.db('albion').collection('normalized_prices').find(
+  let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('normalized_prices').find(
     {
       location: { $in: [from, to] }
     }, {
@@ -190,6 +191,7 @@ router.get('/sort', async (ctx) => {
     from = 'Caerleon',
     to = 'Caerleon',
     sort = 'BY_LAST_TIME_CHECKED,BY_PERCENTAGE_PROFIT',
+    serverId,
   } = ctx.request.query;
 
   try {
@@ -197,7 +199,7 @@ router.get('/sort', async (ctx) => {
 
     sort = sort.split(',').filter(userSort => sortings.includes(userSort));
   
-    const groupedItemsByLocation = (await axios.get(`${config.apiUrl}/transportations/transportations-data?from=${from}&to=${to}`)).data;
+    const groupedItemsByLocation = (await axios.get(`${config.apiUrl}/transportations/transportations-data?from=${from}&to=${to}&serverId=${serverId}`)).data;
 
     skip = Number(skip) || 0;
     count = Math.min(Number(count) || 0, 200);
