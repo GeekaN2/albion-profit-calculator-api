@@ -1,5 +1,5 @@
-const { workerData, parentPort } = require('worker_threads')
-const { sleep } = require('../../utlis');
+const { workerData, parentPort, getEnvironmentData } = require('worker_threads')
+const { sleep, getDbByServerId } = require('../../utlis');
 const { createArrayOfAllItems } = require('./utils');
 const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
@@ -23,6 +23,8 @@ const formatDate = `${monthAgo.getMonth() + 1}-${monthAgo.getDate()}-${monthAgo.
 const qualities = '1,2,3';
 const zeroDate = (new Date(0)).toISOString().slice(0,-5);
 
+const serverId = getEnvironmentData('serverId');
+
 class Worker {
   constructor() {}
 
@@ -33,7 +35,7 @@ class Worker {
     try {
       let connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
       this.connection = connection;
-      this.db = connection.db('albion');
+      this.db = connection.db(getDbByServerId(serverId));
       console.log("Average data worker: successfully connected to MongoDB");
     }
     catch(ex) {
@@ -66,7 +68,7 @@ class Worker {
    * @return {Array} - collected data for current item in each city
    */
   async collectDataForOneItem(itemName) {
-    const requestUrl = `${baseUrl}/${itemName}?date=${formatDate}&locations=${allCities}&qualities=${qualities}&time-scale=24`;
+    const requestUrl = `${baseUrl}/${itemName}?date=${formatDate}&locations=${allCities}&qualities=${qualities}&time-scale=24&serverId=${serverId}`;
     
     const response = await axios.get(requestUrl);
     const data = response.data;
@@ -156,7 +158,7 @@ async function runWorker() {
       worker.setItemData(collectedData);
 
       // We can only send 1 request in 1 second so we need to sleep
-      await sleep(1000);
+      await sleep(5000);
     }
 
     console.log('Average data worker: updated', baseItemName);

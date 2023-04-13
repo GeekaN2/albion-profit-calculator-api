@@ -1,7 +1,11 @@
-### API for albion profit calculator
+## API for albion profit calculator
 API for authorization and registration and some useful item data.
 
-## Build Setup
+### Configs setup
+Rename .env.sample to .env 
+Rename server.conf.sample to servers.json
+
+### Build Setup
 
 ``` bash
 # install dependencies
@@ -17,10 +21,10 @@ $ yarn prod
 $ yarn run-worker-dev
 
 # run average data worker in production mode
-$ npm run-worker-prod
+$ yarn run-worker-prod
 
 # lint and fix
-$ npm run lint
+$ yarn lint
 ```
 
 ## Migrations and other
@@ -32,7 +36,7 @@ $ yarn create-indexes
 $ yarn fill-market-orders
 
 # install migrate-mongo
-$ npm install -g migrate-mongo
+$ yarn add -g migrate-mongo
 
 # up migrations
 $ yarn migrations:up

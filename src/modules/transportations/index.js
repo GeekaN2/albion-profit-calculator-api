@@ -2,18 +2,18 @@ const Router = require('koa-router');
 const axios = require('axios');
 const router = new Router();
 const config = require('../../config');
-const { isAvailableLocation, generateOrderKey, getLocationFromLocationId } = require('../../utlis');
+const { isAvailableLocation, generateOrderKey, getLocationFromLocationId, getDbByServerId } = require('../../utlis');
 
 /**
  * Returns the best routes between all locations for one item 
  */
 router.get('/', async (ctx) => {
-  let { items = 'T4_BAG', locations = 'Caerleon' } = ctx.request.query;
+  let { items = 'T4_BAG', locations = 'Caerleon', serverId } = ctx.request.query;
 
   items = items.split(',').filter(item => item.trim().length > 0);
   locations = locations.split(',').filter(location => isAvailableLocation(location));
 
-  let cursor = await ctx.mongo.db('albion').collection('normalized_prices').find({
+  let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('normalized_prices').find({
     $and: [
       { itemId: { $in: items } },
       { location: { $in: locations } },
@@ -61,13 +61,13 @@ router.get('/', async (ctx) => {
  * @param {string} to - location to sell items
  */
 router.get('/analyze', async (ctx) => {
-  let { skip = 0, count = 20, from = 'Caerleon', to = 'Caerleon', useHeuristicSort = false } = ctx.request.query;
+  let { skip = 0, count = 20, from = 'Caerleon', to = 'Caerleon', useHeuristicSort = false, serverId } = ctx.request.query;
 
   skip = Number(skip) || 0;
   count = Math.min(Number(count) || 0, 200);
   useHeuristicSort = useHeuristicSort === 'true'
 
-  let cursor = await ctx.mongo.db('albion').collection('normalized_prices').find(
+  let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('normalized_prices').find(
     {
       location: { $in: [from, to] }
     }, {

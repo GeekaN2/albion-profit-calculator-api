@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('./config');
+const servers = require('../servers.json'); // eslint-disable-line node/no-unpublished-require
 const { v4: uuid } = require('uuid');
 
 /**
@@ -61,7 +62,7 @@ function generateRegisterToken(role) {
  * @returns {boolean} 
  */
 function isAvailableLocation(location) {
-  const allLocation = ['Black Market', 'Bridgewatch', 'Caerleon', 'Fort Sterling', 'Lymhurst', 'Martlock','Thetford']
+  const allLocation = ['Black Market', 'Bridgewatch', 'Caerleon', 'Fort Sterling', 'Lymhurst', 'Martlock', 'Thetford', 'Brecilien'];
 
   return allLocation.includes(location);
 }
@@ -126,6 +127,25 @@ function getLocationFromLocationId(locationId) {
   return cityCodes[locationId]
 }
 
+/**
+ * Configurations for receiving and storing data from various servers and users
+ */
+function getServers() {
+  return servers;
+}
+
+function getServerById(serverId = 'aod_west') {  
+  return getServers().find(({ id }) => serverId === id);
+}
+
+function getServerIds() {
+  return getServers().map(({ id }) => id);
+}
+
+function getDbByServerId(serverId = 'aod_west') {
+  return getServerById(serverId).id;
+}
+
 module.exports = {
   generateRegisterToken,
   generateRefreshToken,
@@ -136,5 +156,9 @@ module.exports = {
   generateOrderKey,
   getLocationIdFromLocation,
   getLocationFromLocationId,
+  getServers,
+  getServerById,
+  getDbByServerId,
+  getServerIds,
   roles
 }

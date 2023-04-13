@@ -1,25 +1,32 @@
 const NATS = require('nats');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
-const { getLocationFromLocationId, isAvailableLocation } = require('../../utlis');
+const { getLocationFromLocationId, isAvailableLocation, getDbByServerId, getServerById } = require('../../utlis');
 
-const nc = NATS.connect('nats://public:thenewalbiondata@albion-online-data.com:4222')
+const argv = require('minimist')(process.argv.slice(2));
+
+const serverId = argv.serverId;
+const server = getServerById(serverId);
+
+const nc = NATS.connect(server.natsUrl);
+console.log(`Connection to NATS: ${server.natsUrl}`);
+
 var collection;
 let quantityOfUpdatedOrders = 0;
 let quantityOfCreatedOrders = 0;
 let daysWhileOrderCanLive = 14;
 
 (async function () {
-  const connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
-  const db = connection.db('albion');
+  const connection = await new MongoClient(config.connection, { useUnifiedTopology: true, useNewUrlParser: true }).connect();
+  const db = connection.db(server.id);
   collection = db.collection('market_orders');
 
-  console.log('Connected to mongodb', new Date());
+  console.log(`Connected to mongodb: server - ${server.id}`, new Date());
 })();
 
 let gotMessages = false;
 
-const logInterval = setInterval(function () {
+setInterval(function () {
   console.log('1 minute past', new Date());
   console.log('Updated', quantityOfUpdatedOrders, 'orders');
   console.log('Created', quantityOfCreatedOrders, 'orders');
@@ -39,8 +46,6 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
   const day = 24 * 60 * 60 * 1000;
 
   for (let item of response) {
-    const tier = item.ItemTypeId.match(/T\d/);
-
     if (!isAvailableLocation(getLocationFromLocationId(item.LocationId))) {
       continue;
     }

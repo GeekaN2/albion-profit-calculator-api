@@ -14,8 +14,9 @@
     "koa-jwt": "^4.0.0",
     "koa-mongo": "^1.9.1",
     "koa-router": "^9.1.0",
-    "migrate-mongo": "^8.1.4",
-    "mongodb": "^3.6.0",
+    "migrate-mongo": "^9.0.0",
+    "minimist": "^1.2.8",
+    "mongodb": "^5.2.0",
     "nats": "^1.4.12",
     "rc": "^1.2.8",
     "split": "^1.0.1",
@@ -31,7 +32,9 @@
     "fill-market-orders": "node src/scripts/fillMarketOrders.js",
     "create-indexes": "node src/scripts/createIndexes.js",
     "migrations:up": "migrate-mongo up",
-    "migrations:down": "migrate-mongo down"
+    "migrations:down": "migrate-mongo down",
+    "nats:aod-west": "yarn nats --serverId=aod_west",
+    "run-worker:aod-west": "yarn run-worker-prod --serverId=aod_west"
   },
   "devDependencies": {
     "eslint": "^7.4.0",

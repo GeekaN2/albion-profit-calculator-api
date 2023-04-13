@@ -6,3 +6,6 @@
 
 # migrate-mongo conifg
 migrate-mongo-config.js
+
+# custom servers
+servers.json

@@ -3,7 +3,7 @@ const MongoClient = require('mongodb').MongoClient;
 const config = require('../config');
 const items = require('../static/items.json');
 const split = require('split');
-const { getLocationFromLocationId, isAvailableLocation } = require('../utlis');
+const { getLocationFromLocationId, isAvailableLocation, getDbByServerId } = require('../utlis');
 
 const day = 24 * 60 * 60 * 1000;
 let quantity = 0;
@@ -15,7 +15,9 @@ let splitstream = fs.createReadStream('./src/static/migrations/market_orders.txt
  */
 async function connectToMongoDB() {
   const connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
-  collection = connection.db('albion').collection('market_orders');
+  
+  // TODO: Add server as a parameter
+  collection = connection.db(getDbByServerId()).collection('market_orders');
 
   return collection;
 }
