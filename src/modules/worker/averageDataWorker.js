@@ -1,7 +1,5 @@
 const { getEnvironmentData } = require('worker_threads')
 const { sleep, getDbByServerId } = require('../../utlis');
-const { createArrayOfAllItems } = require('./utils');
-const { sleep } = require('../../utlis');
 const { createArrayOfAllItems, createArrayOfAllFoodAndPotionsItems } = require('./utils');
 const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
