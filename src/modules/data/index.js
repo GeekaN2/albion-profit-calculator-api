@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const router = new Router();
 const config = require('../../config');
 const axios = require('axios');
-const { isAvailableLocation, generateOrderKey, getLocationIdFromLocation, getLocationFromLocationId } = require('../../utlis');
+const { isAvailableLocation, generateOrderKey, getLocationIdFromLocation, getLocationFromLocationId, getDbByServerId } = require('../../utlis');
 
 const OVERPRICED_MULTIPLIER = 100;
 
@@ -10,9 +10,9 @@ const OVERPRICED_MULTIPLIER = 100;
  * Returns data for requested items
  */
 router.get('/', async (ctx) => {
-  let { items = '', locations = '', qualities = '1' } = ctx.request.query;
+  let { items = '', locations = '', qualities = '1', serverId } = ctx.request.query;
 
-  const averageData = (await axios.get(`${config.apiUrl}/average_data?items=${items}&locations=${locations}`)).data;
+  const averageData = (await axios.get(`${config.apiUrl}/average_data?items=${items}&locations=${locations}&serverId=${serverId}`)).data;
   let averageDataObject = {};
   averageData.forEach(item => averageDataObject[item.itemName] = item);
 
@@ -21,7 +21,7 @@ router.get('/', async (ctx) => {
   locations = locations.map(location => getLocationIdFromLocation(location));
   qualities = qualities.split(',').map(quality => Number(quality)) || [];
 
-  let cursor = await ctx.mongo.db('albion').collection('market_orders').find({
+  let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('market_orders').find({
     $and: [
       { ItemId: { $in: items } },
       { LocationId: { $in: locations } },

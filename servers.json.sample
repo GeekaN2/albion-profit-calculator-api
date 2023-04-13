@@ -1,0 +1,11 @@
+[{
+    "id": "aod_west",
+    "description": "Albion Online Data server for the West, the most popular server",
+    "natsUrl": "nats://public:thenewalbiondata@albion-online-data.com:4222",
+    "healthCheck": "http://albion-online-data.com:4223/pow"
+}, {
+    "id": "aod_east",
+    "description": "Albion Online Data server for the East, asian server",
+    "natsUrl": "nats://public:thenewalbiondata@east.albion-online-data.com:24222",
+    "healthCheck": "http://albion-online-data.com:4223/pow"
+}]

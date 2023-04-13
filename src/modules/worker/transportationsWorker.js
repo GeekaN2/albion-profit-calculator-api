@@ -1,5 +1,5 @@
-const { workerData, parentPort } = require('worker_threads')
-const { sleep } = require('../../utlis');
+const { getEnvironmentData } = require('worker_threads')
+const { sleep, getDbByServerId, getServerById } = require('../../utlis');
 const { normalizedPriceAndDate, normalizeItem, createArrayOfAllNames } = require('./utils');
 const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
@@ -17,6 +17,7 @@ const cities = [
 ]
 
 const qualities = [1, 2, 3];
+const serverId = getEnvironmentData('serverId');
 
 class Worker {
   constructor() {}
@@ -28,7 +29,7 @@ class Worker {
     try {
       let connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
       this.connection = connection;
-      this.db = connection.db('albion');
+      this.db = connection.db(getDbByServerId(serverId));
 
       console.log("Transportations worker: successfully connected to MongoDB");
     }
@@ -81,8 +82,8 @@ async function runWorker() {
 
   for (let baseItemName of items) {
     const allItems = createArrayOfAllNames(`T4${baseItemName}`);
-    let itemsData = await axios.get(`${config.apiUrl}/data?items=${allItems.join(',')}&locations=${cities.join(',')}&qualities=${qualities.join(',')}`);
-    let averageData = await axios.get(`${config.apiUrl}/average_data?items=${allItems.join(',')}&locations=${cities.join(',')}`);
+    let itemsData = await axios.get(`${config.apiUrl}/data?items=${allItems.join(',')}&locations=${cities.join(',')}&qualities=${qualities.join(',')}&serverId=${serverId}`);
+    let averageData = await axios.get(`${config.apiUrl}/average_data?items=${allItems.join(',')}&locations=${cities.join(',')}&serverId=${serverId}`);
     
     itemsData = itemsData.data;
     averageData = averageData.data.reduce((accumulator, item) => {

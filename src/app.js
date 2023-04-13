@@ -16,6 +16,7 @@ const dataModule = require('./modules/data');
 const transportationsModule = require('./modules/transportations');
 const adminModule = require('./modules/admin');
 const utilsModule = require('./modules/utils');
+const serversModule = require('./modules/servers');
 
 function createApp() {
   const app = new Koa();
@@ -31,6 +32,7 @@ function createApp() {
   router.use('/api/data', dataModule.routes());
   router.use('/api/transportations', transportationsModule.routes());
   router.use('/api/utils', utilsModule.routes());
+  router.use('/api/servers', serversModule.routes());
 
   router.use(
     jwtMiddleware({
