@@ -18,13 +18,16 @@ const cities = [
 ]
 
 const allCities = cities.join(',');
-const baseUrl = 'https://www.albion-online-data.com/api/v2/stats/charts';
+
+const serverId = getEnvironmentData('serverId');
+const urlPrefix = serverId.includes('west') ? 'west' : 'east';
+
+const baseUrl = `https://${urlPrefix}.albion-online-data.com/api/v2/stats/charts`;
 const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 const formatDate = `${monthAgo.getMonth() + 1}-${monthAgo.getDate()}-${monthAgo.getFullYear()}`;
 const qualities = '1,2,3';
 const zeroDate = (new Date(0)).toISOString().slice(0,-5);
 
-const serverId = getEnvironmentData('serverId');
 
 class Worker {
   constructor() {}
@@ -70,7 +73,6 @@ class Worker {
    */
   async collectDataForOneItem(itemName) {
     const requestUrl = `${baseUrl}/${itemName}?date=${formatDate}&locations=${allCities}&qualities=${qualities}&time-scale=24&serverId=${serverId}`;
-    
     const response = await axios.get(requestUrl);
     const data = response.data;
     
@@ -138,6 +140,7 @@ class Worker {
 
     for (let data of dataToSet) {
       const response = await collection.updateOne({ itemName: data.itemName, location: data.location}, { $set: data }, options);
+      console.log(`Average data worker ${urlPrefix}: Updated ${data.itemName} in ${data.location}`);
     }
   }
 }
@@ -160,7 +163,7 @@ async function runWorker() {
       worker.setItemData(collectedData);
 
       // We can only send 1 request in 1 second so we need to sleep
-      await sleep(5000);
+      await sleep(10000);
     }
 
     console.log('Average data worker: updated', baseItemName);
