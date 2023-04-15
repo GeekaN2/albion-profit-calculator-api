@@ -140,7 +140,6 @@ class Worker {
 
     for (let data of dataToSet) {
       const response = await collection.updateOne({ itemName: data.itemName, location: data.location}, { $set: data }, options);
-      console.log(`Average data worker ${urlPrefix}: Updated ${data.itemName} in ${data.location}`);
     }
   }
 }
@@ -153,20 +152,23 @@ async function runWorker() {
   
   await worker.start();
 
+  const itemsWithTierAndSubtier = [];
+
   for (let baseItemName of allItems) {
-    const itemsWithTierAndSubtier = createArrayOfAllItems(`T4${baseItemName}`);
-    itemsWithTierAndSubtier.push(...createArrayOfAllFoodAndPotionsItems())
+    itemsWithTierAndSubtier.push(...createArrayOfAllItems(`T4${baseItemName}`));
+  }
 
-    for (let item of itemsWithTierAndSubtier) {
-      const collectedData = await worker.collectDataForOneItem(item);
-  
-      worker.setItemData(collectedData);
+  itemsWithTierAndSubtier.push(...createArrayOfAllFoodAndPotionsItems())
 
-      // We can only send 1 request in 1 second so we need to sleep
-      await sleep(10000);
-    }
+  for (let item of itemsWithTierAndSubtier) {
+    const collectedData = await worker.collectDataForOneItem(item);
 
-    console.log('Average data worker: updated', baseItemName);
+    worker.setItemData(collectedData);
+
+    console.log('Average data worker: updated', item);
+
+    // We can only send 1 request in 1 second so we need to sleep
+    await sleep(5000);
   }
 
   // For test
