@@ -14,6 +14,7 @@ console.log(`Connection to NATS: ${server.natsUrl}`);
 var collection;
 let quantityOfUpdatedOrders = 0;
 let quantityOfCreatedOrders = 0;
+let quantityOfFailedOrders = 0;
 let daysWhileOrderCanLive = 14;
 
 (async function () {
@@ -30,8 +31,9 @@ setInterval(function () {
   console.log('1 minute past', new Date());
   console.log('Updated', quantityOfUpdatedOrders, 'orders');
   console.log('Created', quantityOfCreatedOrders, 'orders');
+  console.log('Failed to process', quantityOfFailedOrders, 'orders');
 
-  quantityOfCreatedOrders = quantityOfUpdatedOrders = 0;
+  quantityOfCreatedOrders = quantityOfUpdatedOrders = quantityOfFailedOrders = 0;
 }, 60 * 1000);
 
 nc.subscribe('marketorders.deduped.bulk', async function (msg) {
@@ -51,7 +53,7 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
     }
 
     const itemInDB = await collection.findOne({ OrderId: item.Id });
-
+    
     if (itemInDB === null) {
       item.Expires = new Date(item.Expires);
 
@@ -59,22 +61,29 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
         item.Expires = new Date(Date.now() + daysWhileOrderCanLive * day);
       }
 
-      await collection.insertOne({
-        OrderId: item.Id,
-        ItemId: item.ItemTypeId,
-        LocationId: String(item.LocationId),
-        QualityLevel: item.QualityLevel,
-        UnitPriceSilver: item.UnitPriceSilver,
-        Amount: item.Amount,
-        AuctionType: item.AuctionType,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
-        Expires: item.Expires
-      });
+      try {
+        await collection.insertOne({
+          OrderId: item.Id,
+          ItemId: item.ItemTypeId,
+          LocationId: String(item.LocationId),
+          QualityLevel: item.QualityLevel,
+          UnitPriceSilver: item.UnitPriceSilver,
+          Amount: item.Amount,
+          AuctionType: item.AuctionType,
+          CreatedAt: new Date(),
+          UpdatedAt: new Date(),
+          Expires: item.Expires
+        });
+
+        quantityOfCreatedOrders++;
+      } catch (error) {
+        console.error('Failed to insert an item with id', item.Id, error);
+
+        quantityOfFailedOrders++;
+      }
 
       // console.log('Created', item.ItemTypeId, 'in', getLocationFromLocationId(item.LocationId), 'quality', item.QualityLevel);
       
-      quantityOfCreatedOrders++;
     } else {
       item.Expires = new Date(item.Expires);
 
@@ -82,19 +91,26 @@ nc.subscribe('marketorders.deduped.bulk', async function (msg) {
         item.Expires = new Date(Date.now() + daysWhileOrderCanLive * day);
       }
 
-      await collection.updateOne({
-        OrderId: item.Id
-      }, {
-        $set: {
-          UnitPriceSilver: item.UnitPriceSilver,
-          Amount: item.Amount,
-          UpdatedAt: new Date(),
-        }
-      });
+      try {
+        await collection.updateOne({
+          OrderId: item.Id
+        }, {
+          $set: {
+            UnitPriceSilver: item.UnitPriceSilver,
+            Amount: item.Amount,
+            UpdatedAt: new Date(),
+          }
+        });
+
+        quantityOfUpdatedOrders++;
+      } catch (error) {
+        console.error('Failed to update an item with id', item.Id, error);
+
+        quantityOfFailedOrders++;
+      }
 
       // console.log('Updated', item.ItemTypeId, 'in', getLocationFromLocationId(item.LocationId), 'quality', item.QualityLevel);
 
-      quantityOfUpdatedOrders++;
     }
   }
 })
