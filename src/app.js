@@ -32,6 +32,7 @@ function createApp() {
   router.use('/api/data', dataModule.routes());
   router.use('/api/transportations', transportationsModule.routes());
   router.use('/api/utils', utilsModule.routes());
+
   router.use('/api/servers', serversModule.routes());
 
   router.use(
@@ -39,9 +40,11 @@ function createApp() {
       secret: config.secret,
     })
   );
+
+
   router.use('/api/user', userModule.routes());
   router.use('/api/admin', adminModule.routes());
-  
+
   app.use(koaBody());
   app.use(cors());
   app.use(mongo({
@@ -51,12 +54,13 @@ function createApp() {
   }));
   app.use(router.allowedMethods());
   app.use(router.routes());
-  
+  // Custom 401 handling (first middleware)
+
   return app;
 }
 
 createApp().listen(config.port, () => {
-    console.log(`Listening on port ${config.port}`)
+  console.log(`Listening on port ${config.port}`)
 });
 
 module.exports = createApp;

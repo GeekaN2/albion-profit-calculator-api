@@ -7,6 +7,7 @@
     "@koa/cors": "^3.1.0",
     "axios": "^0.21.2",
     "bcrypt": "^5.0.0",
+    "colors": "^1.4.0",
     "dotenv": "^8.2.0",
     "es6-promise-pool": "^2.5.0",
     "jsonwebtoken": "^8.5.1",
@@ -16,14 +17,16 @@
     "koa-jwt": "^4.0.0",
     "koa-mongo": "^1.9.1",
     "koa-router": "^9.1.0",
+    "lru-cache": "^7.13.0",
     "migrate-mongo": "^9.0.0",
     "minimist": "^1.2.8",
     "mongodb": "^5.2.0",
-    "lru-cache": "^7.13.0",
     "nats": "^1.4.12",
+    "node-cron": "^3.0.2",
     "rc": "^1.2.8",
     "split": "^1.0.1",
-    "uuid": "^8.2.0"
+    "uuid": "^8.2.0",
+    "workerpool": "^6.4.2"
   },
   "scripts": {
     "dev": "nodemon --exec \"yarn lint && node src/app.js\"",

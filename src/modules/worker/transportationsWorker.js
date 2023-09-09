@@ -6,6 +6,7 @@ const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
 const items = require('../../static/items.json');
+const workerpool = require('workerpool');
 
 const cities = [
   'Black Market',
@@ -19,12 +20,11 @@ const cities = [
 ]
 
 const qualities = [1, 2, 3];
-const serverId = getEnvironmentData('serverId');
-
-const MAX_PARALLEL_REQUESTS = 16;
 
 class Worker {
-  constructor() { }
+  constructor(serverId) {
+    this.serverId = serverId;
+  }
 
   /**
    * Connect to MongoDB
@@ -33,12 +33,12 @@ class Worker {
     try {
       let connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
       this.connection = connection;
-      this.db = connection.db(getDbByServerId(serverId));
+      this.db = connection.db(getDbByServerId(this.serverId));
 
-      console.log("Transportations worker: successfully connected to MongoDB");
+      console.log(`[${this.serverId}] Transportations worker: successfully connected to MongoDB`);
     }
     catch (ex) {
-      console.log("Transportations worker: connection failed");
+      console.log(`[${this.serverId}] Transportations worker: connection failed`);
     }
   }
 
@@ -46,7 +46,8 @@ class Worker {
    * Run worker
    */
   async start() {
-    console.log('Transportations worker: started', new Date());
+    console.log(`[${this.serverId}] Transportations worker: started`, new Date());
+    this.timeStarted = new Date();
 
     await this.connect();
   }
@@ -55,7 +56,8 @@ class Worker {
    * Stop worker
    */
   async stop() {
-    console.log('Transportations worker: stopped', new Date());
+    console.log(`[${this.serverId}] Transportations worker: stopped`, new Date());
+    this.timeFinished = new Date();
 
     await this.connection.close();
   }
@@ -78,8 +80,8 @@ class Worker {
 
 async function processBaseItemName(baseItemName, worker) {
   const allItems = createArrayOfAllNames(`T4${baseItemName}`);
-  let itemsData = await axios.get(`${config.apiUrl}/data?items=${allItems.join(',')}&locations=${cities.join(',')}&qualities=${qualities.join(',')}&serverId=${serverId}`);
-  let averageData = await axios.get(`${config.apiUrl}/average_data?items=${allItems.join(',')}&locations=${cities.join(',')}&serverId=${serverId}`);
+  let itemsData = await axios.get(`${config.apiUrl}/data?items=${allItems.join(',')}&locations=${cities.join(',')}&qualities=${qualities.join(',')}&serverId=${worker.serverId}`);
+  let averageData = await axios.get(`${config.apiUrl}/average_data?items=${allItems.join(',')}&locations=${cities.join(',')}&serverId=${worker.serverId}`);
 
   itemsData = itemsData.data;
   averageData = averageData.data.reduce((accumulator, item) => {
@@ -135,26 +137,46 @@ async function processBaseItemName(baseItemName, worker) {
 /**
  * Run worker
  */
-async function runWorker() {
-  const worker = new Worker();
+async function transportationsWorker(serverId, enableLogs = true) {
+  const worker = new Worker(serverId);
+  let successCounter = 0;
+  let errorsCounter = 0
 
   await worker.start();
 
   function* getPromises() {
     for (let baseItemName of items) {
       yield processBaseItemName(baseItemName, worker).then(() => {
-        console.log('Transportations worker: Updated', baseItemName);
-      }).catch(() => {
-        console.log('Transportations worker: Error on', baseItemName);
+        if (enableLogs) {
+          console.log(`[${serverId}] Transportations worker: Updated`, baseItemName);
+        }
+
+        successCounter++;
+      }).catch((err) => {
+        if (enableLogs) {
+          console.log(`[${serverId}] Transportations worker: Error on`, baseItemName, err);
+        }
+
+        errorsCounter++
       });
     }
   }
 
-  const pool = new PromisePool(getPromises, MAX_PARALLEL_REQUESTS);
-    
+  const pool = new PromisePool(getPromises, config.maxParallelTransportationWorkerRequests);
   await pool.start();
 
   await worker.stop();
+
+  const workTime = worker.timeFinished - worker.timeStarted;
+
+  return {
+    serverId,
+    successCounter,
+    errorsCounter,
+    workTime,
+  }
 }
 
-runWorker().catch(err => console.log('Error in worker', err));
+workerpool.worker({
+  transportationsWorker: transportationsWorker,
+});

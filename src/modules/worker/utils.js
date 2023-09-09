@@ -221,7 +221,7 @@ function normalizeItem(oldItem, newItem) {
     return oldItem;
   }
 
-  return oldItem.normalizedPrice > newItem.normalizedPrice ? oldItem: newItem;
+  return oldItem.normalizedPrice < newItem.normalizedPrice ? oldItem: newItem;
 }
 
 /**

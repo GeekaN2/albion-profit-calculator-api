@@ -8,5 +8,7 @@ module.exports = rc('config', {
   registerSecret: process.env.REGISTER_SECRET,
   registerJwtSecret: process.env.REGISTER_JWT_SECRET,
   apiUrl: process.env.DATA_API_URL,
+  maxTransportationWorkers: Number(process.env.MAX_TRANSPORTATION_WORKERS),
+  maxParallelTransportationWorkerRequests: Number(process.env.MAX_PARALLEL_TRANSPORTATION_WORKER_REQUESTS),
   testPeriod: 14 * 24 * 60 * 60 * 1000 // two weeks in ms
 });
