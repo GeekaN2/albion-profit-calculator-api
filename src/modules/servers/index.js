@@ -13,23 +13,53 @@ router.get('/', async (ctx) => {
 });
 
 router.get('/available', async (ctx) => {
-  let cursor = ctx.mongo.db('albion').collection('servers').find({})
+  const userId = ctx.state && ctx.state.user && ctx.state.user.id;
+  let userNickname = '';
+
+  if (userId) {
+    const user = await ctx.mongo.db('albion').collection('users').findOne({ _id: mongo.ObjectId(userId) });
+    
+    if (user) {
+      userNickname = user.nickname;
+    }
+  }
+
+  let serversRequest = {
+    state: 'public'
+  }
+
+  if (userId && userNickname) {
+    serversRequest = {
+      $or: [{
+        state: 'public'
+      }, {
+        access: {
+          $in: [{
+            type: 'user',
+            nickname: userNickname
+          }]
+        }
+      }, {
+        creatorId: mongo.ObjectId(userId)
+      }]
+    }
+  }
+
+  let cursor = ctx.mongo.db('albion').collection('servers').find(serversRequest, { projection: { _id: 0 } })
   let servers = await cursor.toArray();
 
   ctx.body = servers;
 })
 
-router.put('/create', async (ctx, next) => {
-  const user = ctx.state.user;
+router.put('/create', async (ctx) => {
+  const userId = ctx.state && ctx.state.user && ctx.state.user.id;
 
-  console.log(ctx.state);
-  if (!user || !user.id) {
+  if (!userId) {
     ctx.body = 'No user logged in';
     ctx.status = 400;
     return;
   }
 
-  const userId = ctx.state.user.id;
   const serverData = ctx.request.body;
 
   const supporter = await isSupporter(userId, ctx);
@@ -68,6 +98,71 @@ router.put('/create', async (ctx, next) => {
   ctx.body = 'ok';
 
   // TODO: add server to DB
+})
+
+router.patch('/update', async (ctx) => {
+  const userId = ctx.state && ctx.state.user && ctx.state.user.id;
+
+  if (!userId) {
+    ctx.body = 'No user logged in';
+    ctx.status = 400;
+    return;
+  }
+
+  const serverData = ctx.request.body;
+
+  const supporter = await isSupporter(userId, ctx);
+
+  if (!supporter.isSupporter) {
+    ctx.body = supporter.message;
+    ctx.status = 403;
+  
+    return;
+  }
+
+  const id = String(serverData.id);
+  const description = String(serverData.description);
+  const natsUrl = String(serverData.natsUrl);
+  const state = String(serverData.state);
+  const healthCheckUrl = String(serverData.healthCheckUrl);
+  const access = Array(serverData.access);
+
+  const server = await ctx.mongo.db('albion').collection('servers').findOne({
+    id
+  });
+
+  if (!server) {
+    ctx.body = 'There is no server with such id';
+    ctx.status = 400;
+
+    return;
+  }
+
+  if (!description || !natsUrl || !state || !healthCheckUrl || !access) {
+    ctx.body = 'Not enough params. id, description, natsUrl, state, healthCheckUrl, access are required';
+    ctx.status = 400;
+
+    return;
+  }
+
+  const response  = await ctx.mongo.db('albion').collection('servders').updateOne({
+    id
+  }, {
+    description,
+    natsUrl,
+    state,
+    healthCheckUrl,
+    access,
+  });
+
+  ctx.body = {
+    id,
+    description,
+    natsUrl,
+    state,
+    healthCheckUrl,
+    access,
+  }
 })
 
 module.exports = router;

@@ -33,6 +33,13 @@ function createApp() {
   router.use('/api/transportations', transportationsModule.routes());
   router.use('/api/utils', utilsModule.routes());
 
+  router.use(
+    jwtMiddleware({
+      secret: config.secret,
+      passthrough: true,
+    })
+  );
+
   router.use('/api/servers', serversModule.routes());
 
   router.use(

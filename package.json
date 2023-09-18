@@ -32,15 +32,13 @@
     "dev": "nodemon --exec \"yarn lint && node src/app.js\"",
     "prod": "node src/app.js",
     "lint": "eslint src/ --ext .js --fix",
-    "run-worker-dev": "nodemon src/modules/worker/index.js",
-    "run-worker-prod": "node src/modules/worker/index.js",
-    "nats": "node src/modules/nats",
+    "run-workers-dev": "nodemon src/modules/worker/workerpool.js",
+    "run-workers": "node src/modules/worker/workerpool.js",
     "fill-market-orders": "node src/scripts/fillMarketOrders.js",
     "create-indexes": "node src/scripts/createIndexes.js",
     "migrations:up": "migrate-mongo up",
     "migrations:down": "migrate-mongo down",
-    "nats:aod-west": "yarn nats --serverId=aod_west",
-    "run-worker:aod-west": "yarn run-worker-prod --serverId=aod_west"
+    "nats": "node src/modules/nats/workerpool"
   },
   "devDependencies": {
     "eslint": "^7.4.0",
