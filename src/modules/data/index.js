@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const router = new Router();
 const config = require('../../config');
 const axios = require('axios');
-const { isAvailableLocation, generateOrderKey, getLocationIdFromLocation, getLocationFromLocationId, getDbByServerId } = require('../../utlis');
+const { isAvailableLocation, generateOrderKey, getLocationIdFromLocation, getLocationFromLocationId } = require('../../utlis');
 
 const OVERPRICED_MULTIPLIER = 5;
 
@@ -21,7 +21,7 @@ router.get('/', async (ctx) => {
   locations = locations.map(location => getLocationIdFromLocation(location)).flat();
   qualities = qualities.split(',').map(quality => Number(quality)) || [];
 
-  let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('market_orders').find({
+  let cursor = await ctx.mongo.db(serverId).collection('market_orders').find({
     $and: [
       { ItemId: { $in: items } },
       { LocationId: { $in: locations } },

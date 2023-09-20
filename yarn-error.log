@@ -1,8 +1,8 @@
 Arguments: 
-  /Users/geekan/.nvm/versions/node/v16.15.0/bin/node /opt/homebrew/Cellar/yarn/1.22.19/libexec/bin/yarn.js
+  /Users/geekan/.nvm/versions/node/v16.15.0/bin/node /opt/homebrew/Cellar/yarn/1.22.19/libexec/bin/yarn.js dev
 
 PATH: 
-  /Users/geekan/.nvm/versions/node/v16.15.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki:/Users/geekan/.nvm/versions/node/v16.15.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin
+  /Users/geekan/.nvm/versions/node/v16.15.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin:/usr/local/munki:/Users/geekan/.nvm/versions/node/v16.15.0/bin:/opt/homebrew/bin:/opt/homebrew/sbin
 
 Yarn version: 
   1.22.19
@@ -14,7 +14,7 @@ Platform:
   darwin arm64
 
 Trace: 
-  SyntaxError: /Users/geekan/Personal/albion-profit-calculator-api/package.json: Unexpected token < in JSON at position 452
+  SyntaxError: /Users/geekan/Personal/albion-profit-calculator-api/package.json: Unexpected token } in JSON at position 1315
       at JSON.parse (<anonymous>)
       at /opt/homebrew/Cellar/yarn/1.22.19/libexec/lib/cli.js:1629:59
       at Generator.next (<anonymous>)
@@ -31,6 +31,7 @@ npm manifest:
       "@koa/cors": "^3.1.0",
       "axios": "^0.21.2",
       "bcrypt": "^5.0.0",
+      "colors": "^1.4.0",
       "dotenv": "^8.2.0",
       "es6-promise-pool": "^2.5.0",
       "jsonwebtoken": "^8.5.1",
@@ -40,33 +41,29 @@ npm manifest:
       "koa-jwt": "^4.0.0",
       "koa-mongo": "^1.9.1",
       "koa-router": "^9.1.0",
-  <<<<<<< HEAD
+      "lru-cache": "^7.13.0",
       "migrate-mongo": "^9.0.0",
       "minimist": "^1.2.8",
       "mongodb": "^5.2.0",
-  =======
-      "lru-cache": "^7.13.0",
-      "migrate-mongo": "^8.1.4",
-      "mongodb": "^3.6.0",
-  >>>>>>> d15fc1e (New sorts)
       "nats": "^1.4.12",
+      "node-cron": "^3.0.2",
       "rc": "^1.2.8",
       "split": "^1.0.1",
-      "uuid": "^8.2.0"
+      "uuid": "^8.2.0",
+      "workerpool": "^6.4.2"
     },
     "scripts": {
       "dev": "nodemon --exec \"yarn lint && node src/app.js\"",
       "prod": "node src/app.js",
       "lint": "eslint src/ --ext .js --fix",
-      "run-worker-dev": "nodemon src/modules/worker/index.js",
-      "run-worker-prod": "node src/modules/worker/index.js",
-      "nats": "node src/modules/nats",
+      "run-workers-dev": "nodemon src/modules/worker/workerpool.js",
+      "run-workers": "node src/modules/worker/workerpool.js",
       "fill-market-orders": "node src/scripts/fillMarketOrders.js",
       "create-indexes": "node src/scripts/createIndexes.js",
       "migrations:up": "migrate-mongo up",
       "migrations:down": "migrate-mongo down",
+      "nats": "node src/modules/nats",
       "nats:aod-west": "yarn nats --serverId=aod_west",
-      "run-worker:aod-west": "yarn run-worker-prod --serverId=aod_west"
     },
     "devDependencies": {
       "eslint": "^7.4.0",
@@ -1276,6 +1273,11 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2"
     integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
   
+  colors@^1.4.0:
+    version "1.4.0"
+    resolved "https://registry.yarnpkg.com/colors/-/colors-1.4.0.tgz#c50491479d4c1bdaed2c9ced32cf7c7dc2360f78"
+    integrity sha512-a+UqTh4kgZg/SlGvfbzDHpgRu7AAQOmmqRHJnxhRZICKFUT91brVhNNt58CMWU9PsBbv3PDCZUHbVxuDiH2mtA==
+  
   commander@^9.1.0:
     version "9.5.0"
     resolved "https://registry.yarnpkg.com/commander/-/commander-9.5.0.tgz#bc08d1eb5cedf7ccb797a96199d41c7bc3e60d30"
@@ -1659,19 +1661,17 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
     integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
   
-  <<<<<<< HEAD
+  fast-safe-stringify@^2.0.7:
+    version "2.1.1"
+    resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.1.1.tgz#c406a83b6e70d9e35ce3b30a81141df30aeba884"
+    integrity sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==
+  
   fast-xml-parser@4.1.2:
     version "4.1.2"
     resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.1.2.tgz#5a98c18238d28a57bbdfa9fe4cda01211fff8f4a"
     integrity sha512-CDYeykkle1LiA/uqQyNwYpFbyF6Axec6YapmpUP+/RHWIoR1zKjocdvNaTsxCxZzQ6v9MLXaSYm9Qq0thv0DHg==
     dependencies:
       strnum "^1.0.5"
-  =======
-  fast-safe-stringify@^2.0.7:
-    version "2.1.1"
-    resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.1.1.tgz#c406a83b6e70d9e35ce3b30a81141df30aeba884"
-    integrity sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==
-  >>>>>>> d15fc1e (New sorts)
   
   file-entry-cache@^5.0.1:
     version "5.0.1"
@@ -2372,7 +2372,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/methods/-/methods-1.1.2.tgz#5529a4d67654134edcc5266656835b0f851afcee"
     integrity sha1-VSmk1nZUE07cxSZmVoNbD4Ua/O4=
   
-  migrate-mongo@9.0.0:
+  migrate-mongo@^9.0.0:
     version "9.0.0"
     resolved "https://registry.yarnpkg.com/migrate-mongo/-/migrate-mongo-9.0.0.tgz#e66077e5f7156c65a7556e63561a6dbd3e3c8574"
     integrity sha512-Hs+5kmNdYtKo5574pvIxRAgHUkWtoXE0pIC5QPMCY1m7kwUVViuCtvOZQo0rd9rirtbI9+WDpYtI5ceG32Prgw==
@@ -2535,6 +2535,13 @@ Lockfile:
     version "3.0.0"
     resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-3.0.0.tgz#812446a1001a54f71663bed188314bba07e09247"
     integrity sha512-sSHCgWfJ+Lui/u+0msF3oyCgvdkhxDbkCS6Q8uiJquzOimkJBvX6hl5aSSA7DR1XbMpdM8r7phjcF63sF4rkKg==
+  
+  node-cron@^3.0.2:
+    version "3.0.2"
+    resolved "https://registry.yarnpkg.com/node-cron/-/node-cron-3.0.2.tgz#bb0681342bd2dfb568f28e464031280e7f06bd01"
+    integrity sha512-iP8l0yGlNpE0e6q1o185yOApANRe47UPbLf4YxfbiNHt/RU5eBcGB/e0oudruheSf+LQeDMezqC5BVAb5wwRcQ==
+    dependencies:
+      uuid "8.3.2"
   
   node-pre-gyp@0.15.0:
     version "0.15.0"
@@ -3352,15 +3359,15 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
     integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
   
+  uuid@8.3.2, uuid@^8.3.2:
+    version "8.3.2"
+    resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
+    integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
+  
   uuid@^8.2.0:
     version "8.2.0"
     resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.2.0.tgz#cb10dd6b118e2dada7d0cd9730ba7417c93d920e"
     integrity sha512-CYpGiFTUrmI6OBMkAdjSDM0k5h8SkkiTP4WAjQgDgNB1S3Ou9VBEvr6q0Kv2H1mMk7IWfxYGpMH5sd5AvcIV2Q==
-  
-  uuid@^8.3.2:
-    version "8.3.2"
-    resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
-    integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
   
   v8-compile-cache@^2.0.3:
     version "2.1.1"
@@ -3410,6 +3417,11 @@ Lockfile:
     version "1.2.3"
     resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
     integrity sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==
+  
+  workerpool@^6.4.2:
+    version "6.4.2"
+    resolved "https://registry.yarnpkg.com/workerpool/-/workerpool-6.4.2.tgz#5d086f6fef89adbc4300ca24fcafb7082330e960"
+    integrity sha512-MrDWwemtC4xNV22kbbZDQQQmxNX+yLm790sgYl2wVD3CWnK7LJY1youI/11wHorAjHjK+GEjUxUh74XoPU71uQ==
   
   wrappy@1:
     version "1.0.2"

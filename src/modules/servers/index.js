@@ -1,19 +1,33 @@
 const Router = require('koa-router');
 const router = new Router();
-const { getServers, getDbByServerId } = require('../../utlis');
 const { isSupporter } = require('../admin/utils');
+const config = require('../../config');
 const mongo = require('koa-mongo');
+const { createServerIndexes } = require('../../scripts/createIndexes');
 
 /**
  * Return game servers configured in the database
  * Various NATS connections to which users send their data to then get at the frontend
  */
 router.get('/', async (ctx) => {
-  ctx.body = getServers();
+  ctx.status = '299';
+  ctx.body = 'deprecated'
 });
 
 router.get('/available', async (ctx) => {
+  let bypass = ctx.request.query.bypass;
+
+  if (bypass === config.availableServersBypass) {
+    let cursor = ctx.mongo.db('albion').collection('servers').find({}, { projection: { _id: 0 } })
+    let servers = await cursor.toArray();
+  
+    ctx.body = servers;
+
+    return;
+  }
+
   const userId = ctx.state && ctx.state.user && ctx.state.user.id;
+
   let userNickname = '';
 
   if (userId) {
@@ -71,13 +85,14 @@ router.put('/create', async (ctx) => {
   }
 
   const id = String(serverData.id);
+  const name = String(serverData.name);
   const description = String(serverData.description);
   const natsUrl = String(serverData.natsUrl);
   const state = String(serverData.state);
   const healthCheckUrl = String(serverData.healthCheckUrl);
 
-  if (!id || !description || !natsUrl || !state) {
-    ctx.body = 'Not enough params. id, description, natsUrl, state are required';
+  if (!id || !name || !description || !natsUrl || !state) {
+    ctx.body = 'Not enough params. id, name, description, natsUrl, state are required';
     ctx.status = 400;
 
     return;
@@ -85,6 +100,7 @@ router.put('/create', async (ctx) => {
 
   let response = await ctx.mongo.db('albion').collection('servers').insertOne({
     id,
+    name,
     description,
     natsUrl,
     state,
@@ -93,11 +109,9 @@ router.put('/create', async (ctx) => {
     creatorId: mongo.ObjectId(userId),
   });
 
-  console.log('Resp?', response);
+  createServerIndexes(id);
 
   ctx.body = 'ok';
-
-  // TODO: add server to DB
 })
 
 router.patch('/update', async (ctx) => {

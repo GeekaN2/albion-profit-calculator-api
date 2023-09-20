@@ -17,7 +17,7 @@ async function connectToMongoDB() {
   const connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
   
   // TODO: Add server as a parameter
-  collection = connection.db(getDbByServerId()).collection('market_orders');
+  collection = connection.db('aod_west').collection('market_orders');
 
   return collection;
 }

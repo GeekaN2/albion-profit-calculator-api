@@ -13,7 +13,7 @@ const averageWorkerPool = workerpool.pool(__dirname + '/averageDataWorker.js', {
 });
 
 async function getAvailableServers() {
-  const availableServers = (await axios.get(`${config.apiUrl}/servers/available`)).data;
+  const availableServers = (await axios.get(`${config.apiUrl}/servers/available?bypass=${config.availableServersBypass}`)).data;
 
   if (!availableServers) {
     console.log(new Error('No available servers'));

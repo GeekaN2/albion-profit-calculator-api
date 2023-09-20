@@ -1,6 +1,6 @@
 const Router = require('koa-router');
 const router = new Router();
-const { isAvailableLocation, getServerById, getDbByServerId } = require('../../utlis');
+const { isAvailableLocation } = require('../../utlis');
 
 /**
  * Returns average data for requested items: 
@@ -13,7 +13,7 @@ router.get('/', async (ctx) => {
   locations = locations.split(',').filter(location => isAvailableLocation(location));
   serverId = String(serverId);
 
-  const cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('average_data').find({
+  const cursor = await ctx.mongo.db(serverId).collection('average_data').find({
     $and: [
       { itemName: { $in: items } },
       { location: { $in: locations } }]

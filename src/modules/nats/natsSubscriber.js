@@ -1,7 +1,7 @@
 const NATS = require('nats');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
-const { getLocationFromLocationId, isAvailableLocation, getDbByServerId, getServerById } = require('../../utlis');
+const { getLocationFromLocationId, isAvailableLocation } = require('../../utlis');
 const workerpool = require('workerpool');
 const colors = require('colors/safe');
 

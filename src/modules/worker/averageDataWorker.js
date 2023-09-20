@@ -1,4 +1,4 @@
-const { sleep, getDbByServerId } = require('../../utlis');
+const { sleep } = require('../../utlis');
 const { createArrayOfAllItems, createArrayOfAllFoodAndPotionsItems } = require('./utils');
 const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
@@ -38,7 +38,7 @@ class Worker {
     try {
       let connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
       this.connection = connection;
-      this.db = connection.db(getDbByServerId(this.serverId));
+      this.db = connection.db(this.serverId);
       console.log("Average data worker: successfully connected to MongoDB");
     }
     catch(ex) {

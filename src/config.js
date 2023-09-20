@@ -11,5 +11,6 @@ module.exports = rc('config', {
   maxTransportationWorkers: Number(process.env.MAX_TRANSPORTATION_WORKERS),
   maxParallelTransportationWorkerRequests: Number(process.env.MAX_PARALLEL_TRANSPORTATION_WORKER_REQUESTS),
   testPeriod: 14 * 24 * 60 * 60 * 1000, // two weeks in ms
-  notifyWebhook: process.env.NOTIFY_WEBHOOK
+  notifyWebhook: process.env.NOTIFY_WEBHOOK,
+  availableServersBypass: process.env.AVAILABLE_SERVERS_BYPASS,
 });

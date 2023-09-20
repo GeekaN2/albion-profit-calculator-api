@@ -136,25 +136,6 @@ function getLocationFromLocationId(locationId) {
   return cityCodes[String(locationId)];
 }
 
-/**
- * Configurations for receiving and storing data from various servers and users
- */
-function getServers() {
-  return servers;
-}
-
-function getServerById(serverId = 'apc_east') {  
-  return getServers().find(({ id }) => serverId === id);
-}
-
-function getServerIds() {
-  return getServers().map(({ id }) => id);
-}
-
-function getDbByServerId(serverId = 'apc_east') {
-  return getServerById(serverId).id;
-}
-
 module.exports = {
   generateRegisterToken,
   generateRefreshToken,
@@ -165,9 +146,5 @@ module.exports = {
   generateOrderKey,
   getLocationIdFromLocation,
   getLocationFromLocationId,
-  getServers,
-  getServerById,
-  getDbByServerId,
-  getServerIds,
   roles
 }

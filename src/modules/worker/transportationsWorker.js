@@ -1,5 +1,3 @@
-const { getEnvironmentData } = require('worker_threads')
-const { getDbByServerId } = require('../../utlis');
 const PromisePool = require('es6-promise-pool');
 const { normalizedPriceAndDate, normalizeItem, createArrayOfAllNames } = require('./utils');
 const axios = require('axios');
@@ -33,7 +31,7 @@ class Worker {
     try {
       let connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
       this.connection = connection;
-      this.db = connection.db(getDbByServerId(this.serverId));
+      this.db = connection.db(this.serverId);
 
       console.log(`[${this.serverId}] Transportations worker: successfully connected to MongoDB`);
     }
