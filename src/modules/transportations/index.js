@@ -2,7 +2,7 @@ const Router = require('koa-router');
 const axios = require('axios');
 const router = new Router();
 const config = require('../../config');
-const { isAvailableLocation, getDbByServerId } = require('../../utlis');
+const { isAvailableLocation } = require('../../utlis');
 
 /**
  * Returns the best routes between all locations for one item 
@@ -13,7 +13,7 @@ router.get('/', async (ctx) => {
   items = items.split(',').filter(item => item.trim().length > 0);
   locations = locations.split(',').filter(location => isAvailableLocation(location));
 
-  let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('normalized_prices').find({
+  let cursor = await ctx.mongo.db(serverId).collection('normalized_prices').find({
     $and: [
       { itemId: { $in: items } },
       { location: { $in: locations } },
@@ -67,7 +67,7 @@ router.get('/analyze', async (ctx) => {
   count = Math.min(Number(count) || 0, 200);
   useHeuristicSort = useHeuristicSort === 'true';
 
-  let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('normalized_prices').find(
+  let cursor = await ctx.mongo.db(serverId).collection('normalized_prices').find(
     {
       location: { $in: [from, to] }
     }, {
@@ -161,7 +161,7 @@ router.get('/transportations-data', async (ctx) => {
     serverId,
   } = ctx.request.query;
 
-  let cursor = await ctx.mongo.db(getDbByServerId(serverId)).collection('normalized_prices').find(
+  let cursor = await ctx.mongo.db(serverId).collection('normalized_prices').find(
     {
       location: { $in: [from, to] }
     }, {

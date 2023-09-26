@@ -3,7 +3,7 @@ const MongoClient = require('mongodb').MongoClient;
 const config = require('../config');
 const items = require('../static/items.json');
 const split = require('split');
-const { getLocationFromLocationId, isAvailableLocation, getDbByServerId } = require('../utlis');
+const { getLocationFromLocationId, isAvailableLocation } = require('../utlis');
 
 const day = 24 * 60 * 60 * 1000;
 let quantity = 0;
