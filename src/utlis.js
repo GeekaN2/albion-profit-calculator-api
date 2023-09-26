@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const config = require('./config');
-const servers = require('../servers.json'); // eslint-disable-line node/no-unpublished-require
 const { v4: uuid } = require('uuid');
 
 /**

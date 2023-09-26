@@ -4,14 +4,14 @@ const { isSupporter } = require('../admin/utils');
 const config = require('../../config');
 const mongo = require('koa-mongo');
 const { createServerIndexes } = require('../../scripts/createIndexes');
+const servers = require('../../../servers.json'); // eslint-disable-line node/no-unpublished-require
 
 /**
  * Return game servers configured in the database
  * Various NATS connections to which users send their data to then get at the frontend
  */
 router.get('/', async (ctx) => {
-  ctx.status = '299';
-  ctx.body = 'deprecated'
+  ctx.body = servers;
 });
 
 router.get('/available', async (ctx) => {
