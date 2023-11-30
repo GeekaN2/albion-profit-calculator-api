@@ -3,7 +3,9 @@ API for authorization and registration and some useful item data.
 
 ### Configs setup
 Rename .env.sample to .env 
+
 Rename server.json.sample to servers.json
+
 Rename migrate-mongo-config.js.sample to migrate-mongo-config.js and change credentials
 
 ### Build Setup
