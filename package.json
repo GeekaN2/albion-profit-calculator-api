@@ -7,6 +7,7 @@
     "@koa/cors": "^3.1.0",
     "axios": "^0.21.2",
     "bcrypt": "^5.0.0",
+    "colors": "^1.4.0",
     "dotenv": "^8.2.0",
     "es6-promise-pool": "^2.5.0",
     "jsonwebtoken": "^8.5.1",
@@ -16,28 +17,28 @@
     "koa-jwt": "^4.0.0",
     "koa-mongo": "^1.9.1",
     "koa-router": "^9.1.0",
+    "lru-cache": "^7.13.0",
     "migrate-mongo": "^9.0.0",
     "minimist": "^1.2.8",
     "mongodb": "^5.2.0",
-    "lru-cache": "^7.13.0",
     "nats": "^1.4.12",
+    "node-cron": "^3.0.2",
     "rc": "^1.2.8",
     "split": "^1.0.1",
-    "uuid": "^8.2.0"
+    "uuid": "^8.2.0",
+    "workerpool": "^6.4.2"
   },
   "scripts": {
     "dev": "nodemon --exec \"yarn lint && node src/app.js\"",
     "prod": "node src/app.js",
     "lint": "eslint src/ --ext .js --fix",
-    "run-worker-dev": "nodemon src/modules/worker/index.js",
-    "run-worker-prod": "node src/modules/worker/index.js",
-    "nats": "node src/modules/nats",
+    "run-workers-dev": "nodemon src/modules/worker/workerpool.js",
+    "run-workers": "node src/modules/worker/workerpool.js",
     "fill-market-orders": "node src/scripts/fillMarketOrders.js",
     "create-indexes": "node src/scripts/createIndexes.js",
     "migrations:up": "migrate-mongo up",
     "migrations:down": "migrate-mongo down",
-    "nats:aod-west": "yarn nats --serverId=aod_west",
-    "run-worker:aod-west": "yarn run-worker-prod --serverId=aod_west"
+    "nats": "node src/modules/nats/workerpool"
   },
   "devDependencies": {
     "eslint": "^7.4.0",

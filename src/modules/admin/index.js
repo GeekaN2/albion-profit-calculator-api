@@ -2,6 +2,7 @@ const Router = require('koa-router');
 const router = new Router();
 const mongo = require('koa-mongo');
 const { roles } = require('../../utlis');
+const { isAdmin } = require('./utils');
 
 /**
  * Allow user to reset their password 
@@ -107,26 +108,5 @@ router.get('/users', async ctx => {
   ctx.body = users;
 });
 
-async function isAdmin(userId, ctx) {
-  const admin = await ctx.mongo.db('albion').collection('users').findOne({ _id: mongo.ObjectId(userId)});
-
-  if (!admin) {
-    return {
-      isAdmin: false,
-      message: 'Admin not found'
-    };
-  }
-
-  if (admin.role != 'admin') {
-    return  {
-      isAdmin: false,
-      message: 'You are not an admin'
-    };
-  }
-
-  return {
-    isAdmin: true
-  }
-}
 
 module.exports = router;

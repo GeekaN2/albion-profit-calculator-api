@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const config = require('./config');
-const servers = require('../servers.json'); // eslint-disable-line node/no-unpublished-require
 const { v4: uuid } = require('uuid');
 
 /**
@@ -136,25 +135,6 @@ function getLocationFromLocationId(locationId) {
   return cityCodes[String(locationId)];
 }
 
-/**
- * Configurations for receiving and storing data from various servers and users
- */
-function getServers() {
-  return servers;
-}
-
-function getServerById(serverId = 'apc_east') {  
-  return getServers().find(({ id }) => serverId === id);
-}
-
-function getServerIds() {
-  return getServers().map(({ id }) => id);
-}
-
-function getDbByServerId(serverId = 'apc_east') {
-  return getServerById(serverId).id;
-}
-
 module.exports = {
   generateRegisterToken,
   generateRefreshToken,
@@ -165,9 +145,5 @@ module.exports = {
   generateOrderKey,
   getLocationIdFromLocation,
   getLocationFromLocationId,
-  getServers,
-  getServerById,
-  getDbByServerId,
-  getServerIds,
   roles
 }

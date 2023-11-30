@@ -1,10 +1,11 @@
-const { getEnvironmentData } = require('worker_threads')
-const { sleep, getDbByServerId } = require('../../utlis');
+const { sleep } = require('../../utlis');
 const { createArrayOfAllItems, createArrayOfAllFoodAndPotionsItems } = require('./utils');
 const axios = require('axios');
 const MongoClient = require('mongodb').MongoClient;
 const config = require('../../config');
 const allItems = require('../../static/items.json');
+const workerpool = require('workerpool');
+
 
 const cities = [
   'Black Market',
@@ -19,10 +20,6 @@ const cities = [
 
 const allCities = cities.join(',');
 
-const serverId = getEnvironmentData('serverId');
-const urlPrefix = serverId.includes('west') ? 'west' : 'east';
-
-const baseUrl = `https://${urlPrefix}.albion-online-data.com/api/v2/stats/charts`;
 const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 const formatDate = `${monthAgo.getMonth() + 1}-${monthAgo.getDate()}-${monthAgo.getFullYear()}`;
 const qualities = '1,2,3';
@@ -30,7 +27,9 @@ const zeroDate = (new Date(0)).toISOString().slice(0,-5);
 
 
 class Worker {
-  constructor() {}
+  constructor(serverId) {
+    this.serverId = serverId;
+  }
 
   /**
    * Connect to MongoDB
@@ -39,7 +38,7 @@ class Worker {
     try {
       let connection = await MongoClient.connect(config.connection, { useUnifiedTopology: true, useNewUrlParser: true });
       this.connection = connection;
-      this.db = connection.db(getDbByServerId(serverId));
+      this.db = connection.db(this.serverId);
       console.log("Average data worker: successfully connected to MongoDB");
     }
     catch(ex) {
@@ -72,7 +71,10 @@ class Worker {
    * @return {Array} - collected data for current item in each city
    */
   async collectDataForOneItem(itemName) {
-    const requestUrl = `${baseUrl}/${itemName}?date=${formatDate}&locations=${allCities}&qualities=${qualities}&time-scale=24&serverId=${serverId}`;
+    const urlPrefix = this.serverId.includes('west') ? 'west' : 'east';
+    const baseUrl = `https://${urlPrefix}.albion-online-data.com/api/v2/stats/charts`;
+  
+    const requestUrl = `${baseUrl}/${itemName}?date=${formatDate}&locations=${allCities}&qualities=${qualities}&time-scale=24&serverId=${this.serverId}`;
     const response = await axios.get(requestUrl);
     const data = response.data;
     
@@ -147,8 +149,8 @@ class Worker {
 /**
  * Run worker
  */
-async function runWorker() {
-  const worker = new Worker();
+async function averageDataWorker(serverId) {
+  const worker = new Worker(serverId);
   
   await worker.start();
 
@@ -165,7 +167,7 @@ async function runWorker() {
 
     worker.setItemData(collectedData);
 
-    console.log('Average data worker: updated', item);
+    console.log(`[${serverId}] Average data worker: updated`, item);
 
     // We can only send 1 request in 1 second so we need to sleep
     await sleep(5000);
@@ -179,4 +181,8 @@ async function runWorker() {
   await worker.stop();
 }
 
-runWorker().catch(err => console.log('Error in worker', err));
+workerpool.worker({
+  averageDataWorker: averageDataWorker,
+});
+
+// averageDataWorker().catch(err => console.log('Error in worker', err));

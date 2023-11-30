@@ -8,5 +8,9 @@ module.exports = rc('config', {
   registerSecret: process.env.REGISTER_SECRET,
   registerJwtSecret: process.env.REGISTER_JWT_SECRET,
   apiUrl: process.env.DATA_API_URL,
-  testPeriod: 14 * 24 * 60 * 60 * 1000 // two weeks in ms
+  maxTransportationWorkers: Number(process.env.MAX_TRANSPORTATION_WORKERS),
+  maxParallelTransportationWorkerRequests: Number(process.env.MAX_PARALLEL_TRANSPORTATION_WORKER_REQUESTS),
+  testPeriod: 14 * 24 * 60 * 60 * 1000, // two weeks in ms
+  notifyWebhook: process.env.NOTIFY_WEBHOOK,
+  availableServersBypass: process.env.AVAILABLE_SERVERS_BYPASS,
 });
