@@ -3,7 +3,7 @@ API for authorization and registration and some useful item data.
 
 ### Configs setup
 Rename .env.sample to .env 
-Rename server.conf.sample to servers.json
+Rename server.json.sample to servers.json
 
 ### Build Setup
 
